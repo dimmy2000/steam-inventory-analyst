@@ -11,8 +11,6 @@ import re
 from getpass import getpass
 from steam.client import SteamClient
 from steam.enums import EResult
-from steam.enums.emsg import EMsg
-from steam.utils.web import generate_session_id
 
 # настройка логирования
 logging.basicConfig(format="%(asctime)s | %(message)s",
@@ -32,10 +30,8 @@ class SteamLogin(SteamClient):
     help.steampowered.com
     store.steampowered.com
     '''
-
     # указываем путь к папке для хранения персональной информации
     credential_location = "secrets"
-
     # указываем путь к файлу для хранения последней сессии
     cookies_location = os.path.join(credential_location, 'lastlogin.json')
 
@@ -47,7 +43,8 @@ class SteamLogin(SteamClient):
         :type  username: :class:`str`
         :param password: при необходимости передаем пароль
         :type  password: :class:`str`
-        :param two_factor_code: при необходимости передаем код из мобильного приложения
+        :param two_factor_code: при необходимости передаем код из
+        мобильного приложения
         :type  two_factor_code: :class:`str`
         :return: logon result, see `CMsgClientLogonResponse.eresult
         :rtype: :class:`.EResult`
@@ -66,9 +63,11 @@ class SteamLogin(SteamClient):
             Out[5]: <EResult.OK: 1>
         """
         if not username:
-            # если файл lastlogin.json создан, считываем из него данные для авторизации
+            # если создан lastlogin.json
             if os.path.exists(self.cookies_location):
-                with open(self.cookies_location, 'r', encoding='utf-8') as cookie_jar:
+                with open(self.cookies_location, 'r',
+                          encoding='utf-8') as cookie_jar:
+                    # считываем из него данные для авторизации
                     credentials = json.load(cookie_jar)
                 username = credentials['username']
                 login_key = credentials['login_key']
@@ -78,18 +77,19 @@ class SteamLogin(SteamClient):
         # в противном случае запрашиваем имя, пароль и код 2FA
         if not login_key:
             if not password:
-                # если из lastlogin.json не был загружен login_key, проводим стандартную авторизацию
-                    password = getpass(prompt="Пароль: ")
+                # если из lastlogin.json не был загружен login_key,
+                # проводим стандартную авторизацию
+                password = getpass(prompt="Пароль: ")
             if not two_factor_code:
-                    two_factor_code = input("Введите код из мобильного приложения Steam: ")
+                two_factor_code = input("Введите код из мобильного приложения"
+                                        " Steam: ")
 
         auth_code = None
         prompt_for_unavailable = True
 
         credentials = {
-                'username': username,
-                'login_key': login_key,
-        }
+            'username': username,
+            'login_key': login_key}
 
         if login_key:
             # попытка авторизации из сохраненной сессии
@@ -98,7 +98,8 @@ class SteamLogin(SteamClient):
                                 login_key)
         else:
             # попытка авторизации с введенными пользовательскими данными
-            result = self.login(username, password, login_key, auth_code, two_factor_code)
+            result = self.login(username, password, login_key, auth_code,
+                                two_factor_code)
 
         # ловим ошибки
         while result in (EResult.AccountLogonDenied,
@@ -136,10 +137,12 @@ class SteamLogin(SteamClient):
             # сервис недоступен
             elif result in (EResult.TryAnotherCM,
                             EResult.ServiceUnavailable):
-                if prompt_for_unavailable and result == EResult.ServiceUnavailable:
+                if prompt_for_unavailable and \
+                        result == EResult.ServiceUnavailable:
                     while True:
                         answer = input("Steam недоступен. "
-                                       "Повторить попытку подключения? [y/n]: ").lower()
+                                       "Повторить попытку подключения? "
+                                       "[y/n]: ").lower()
                         if answer in 'yn':
                             break
 
@@ -203,12 +206,12 @@ if __name__ == "__main__":
     # обрабатываем успешную авторизацию
     @client.on("logged_on")
     def handle_after_logon():
-        LOG.info("-"*30)
+        LOG.info("-" * 30)
         LOG.info("Logged on as: %s", client.user.name)
         LOG.info("Community profile: %s", client.steam_id.community_url)
         LOG.info("Last logon: %s", client.user.last_logon)
         LOG.info("Last logoff: %s", client.user.last_logoff)
-        LOG.info("-"*30)
+        LOG.info("-" * 30)
         LOG.info("Press ^C to exit")
         LOG.info("-" * 30)
 
@@ -217,14 +220,15 @@ if __name__ == "__main__":
     def store_login_key():
         LOG.debug("-" * 30)
         LOG.debug("Login key is: %s", client.login_key)
-        with open(client.cookies_location, 'r', encoding='utf-8') as cookie_jar:
+        with open(client.cookies_location, 'r', encoding='utf-8')\
+                as cookie_jar:
             cookie = json.load(cookie_jar)
         # записываем полученный токен в json
         cookie['login_key'] = client.login_key
-        with open(client.cookies_location, 'w', encoding='utf-8') as cookie_jar:
+        with open(client.cookies_location, 'w', encoding='utf-8')\
+                as cookie_jar:
             json.dump(cookie, cookie_jar)
         LOG.debug("Stored login key is: %s", cookie['login_key'])
-
 
     # начало работы
     LOG.info("Начало работы модуля авторизации")
@@ -240,35 +244,40 @@ if __name__ == "__main__":
 
         # пытаемся забрать информацию с сайта используя текущую сессию
         try:
-            page = session.get("https://store.steampowered.com/account/history/")
+            page = session.get("https://store.steampowered.com/account/"
+                               "history/")
             html_text = page.text
 
             with open(f'{client.username}.html', 'w', encoding='utf-8') as f:
                 f.write(html_text)
             try:
                 # пытаемся получить логин аккаунта
-                account = re.search(r'<title>(?P<account>.*?)\'.*</title>', html_text).group('account')
+                account = re.search(r'<title>(?P<account>.*?)\'.*</title>',
+                                    html_text).group('account')
                 LOG.info("Аккаунт %s", account)
             except Exception as err:
                 LOG.info(err)
                 LOG.info("Get account failed")
             try:
                 # пытаемся получить игровой псевдоним пользователя
-                nickname = re.search(r'submenu_username">\s*(?P<nickname>.*?)\s*</a>', html_text).group('nickname')
+                nickname = re.search(r'submenu_username">\s*(?P<nickname>.*?)'
+                                     r'\s*</a>', html_text).group('nickname')
                 LOG.info("Псевдоним: %s", nickname)
             except Exception as err:
                 LOG.info(err)
                 LOG.info("Get nickname failed")
             try:
                 # пытаемся получить данные о балансе кошелька
-                balance = re.search(r'store_transactions/">(?P<balance>.*?)</a>', html_text).group('balance')
+                balance = re.search(r'store_transactions/">(?P<balance>.*?)'
+                                    r'</a>', html_text).group('balance')
                 LOG.info("Баланс кошелька: %s", balance)
             except Exception as err:
                 LOG.info(err)
                 LOG.info("Get balance failed")
             try:
                 # пытаемся получить ссылку на аватар пользователя
-                avatar = re.search(r'class="user_avatar\s*playerAvatar\s*online">\s*<img\s*src="(?P<avatar>.*?)"',
+                avatar = re.search(r'class="user_avatar\s*playerAvatar\s*'
+                                   r'online">\s*<img\s*src="(?P<avatar>.*?)"',
                                    html_text).group('avatar')
                 LOG.info("Аватар: %s", avatar)
             except Exception as err:
@@ -281,7 +290,7 @@ if __name__ == "__main__":
             LOG.debug(str(err))
             LOG.info("Houston, we have a problem")
 
-        # если авторизация не удалась по неизвестной ошибке - выводим ошибку в лог
+        # если авторизация не удалась - выводим ошибку в лог
         if result != EResult.OK:
             LOG.info("Failed to login: %s" % repr(result))
             raise SystemExit
