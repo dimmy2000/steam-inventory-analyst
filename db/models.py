@@ -1,7 +1,7 @@
 """Здесь покоятся модели баз данных."""
 from db import Base, engine
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import BigInteger, Column, Integer, String
 
 
 class User(Base):
@@ -9,16 +9,17 @@ class User(Base):
 
     __tablename__ = "users"
 
-    user_id = Column(Integer, primary_key=True)
-    steam_id = Column(String(17), unique=True)
-    user_login = Column(String)
-    avatar_url = Column(String)
-    wallet_balance = Column(Integer)
-    currency = Column(String(3))
+    steam_id = Column(BigInteger, unique=True, primary_key=True)
+    user_login = Column(String, unique=True, nullable=False)
+    avatar_url = Column(String, nullable=False)
+    wallet_balance = Column(Integer, nullable=False)
+    currency = Column(String(3), nullable=False)
 
     def __repr__(self):
         """Определяем формат вывода объекта класса User."""
-        return f"User {self.user_id}, {self.user_login}, {self.steam_id}"
+        bucks, cents = divmod(self.wallet_balance, 100)
+        return f"User #{self.steam_id}, {self.user_login}. " \
+               f"Wallet balance: {bucks:d}.{cents:02d} {self.currency}"
 
 
 if __name__ == "__main__":
