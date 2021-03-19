@@ -117,7 +117,7 @@ class SteamLogin(SteamClient):
             if result == EResult.InvalidPassword:
                 password = getpass("Пароль для %s введен неверно. "
                                    "Введите пароль: " % repr(username))
-                login_key = None
+                login_key = ''
 
             # Требуется код из е-мэйла
             elif result in (EResult.AccountLogonDenied,
