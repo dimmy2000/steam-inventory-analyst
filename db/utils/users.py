@@ -73,7 +73,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename='../../steam_stat.log',
                         filemode='a',
                         encoding='utf-8',
-                        format="%(asctime)s | %(message)s",
+                        format="%(asctime)s | %(levelname)s | %(message)s",
                         datefmt='%d-%m-%Y %H:%M:%S',
                         level=logging.INFO)
 

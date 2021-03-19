@@ -14,9 +14,9 @@ from steam.enums.emsg import EMsg
 logging.basicConfig(filename='steam_stat.log',
                     filemode='w',
                     encoding='utf-8',
-                    format="%(asctime)s | %(message)s",
+                    format="%(asctime)s | %(levelname)s | %(message)s",
                     datefmt='%d-%m-%Y %H:%M:%S',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 LOG = logging.getLogger()
 
 
@@ -25,11 +25,6 @@ if __name__ == "__main__":
     client = SteamLogin()
     balance = 0
     currency = ''
-
-    @client.on("channel_secured")
-    def send_login():
-        if client.relogin_available:
-            client.relogin()
 
     @client.on("error")
     def handle_error(result_):
