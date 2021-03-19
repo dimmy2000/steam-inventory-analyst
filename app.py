@@ -9,38 +9,47 @@ from db.utils import create_user
 from steam.enums import ECurrencyCode, EResult
 from steam.enums.emsg import EMsg
 
-from sqlalchemy import exc
 
 # Настройка логирования
-logging.basicConfig(format="%(asctime)s | %(message)s",
+logging.basicConfig(filename='steam_stat.log',
+                    filemode='w',
+                    encoding='utf-8',
+                    format="%(asctime)s | %(message)s",
                     datefmt='%d-%m-%Y %H:%M:%S',
-                    level=logging.INFO)
+                    level=logging.DEBUG)
 LOG = logging.getLogger()
 
 
 if __name__ == "__main__":
     # Создаем экземпляр класса для авторизации
     client = SteamLogin()
+    balance = 0
+    currency = ''
+
+    @client.on("channel_secured")
+    def send_login():
+        if client.relogin_available:
+            client.relogin()
 
     @client.on("error")
-    def handle_error(result):
+    def handle_error(result_):
         """Ловим ошибку авторизации."""
-        LOG.info("Результат авторизации: %s", repr(result))
+        LOG.info("Результат авторизации: %s", repr(result_))
 
     @client.on("logged_on")
     def handle_after_logon():
         """Обрабатываем успешную авторизацию."""
-        LOG.info("-" * 30)
+        LOG.info("-" * 57)
         LOG.info("Logged on as: %s", client.user.name)
         LOG.info("Community profile: %s", client.steam_id.community_url)
         LOG.info("Last logon: %s", client.user.last_logon)
         LOG.info("Last logoff: %s", client.user.last_logoff)
-        LOG.info("-" * 30)
+        LOG.info("-" * 57)
 
     @client.on("new_login_key")
     def store_login_key():
         """Обрабатываем получение токена сессии."""
-        LOG.debug("-" * 30)
+        LOG.debug("-" * 57)
         LOG.debug("Login key is: %s", client.login_key)
         with open(client.cookies_location, 'r', encoding='utf-8') \
                 as cookie_jar:
@@ -61,7 +70,7 @@ if __name__ == "__main__":
 
     # Начало работы
     LOG.info("Начало работы модуля авторизации")
-    LOG.info("-" * 30)
+    LOG.info("-" * 57)
 
     result = client.cli_login()
 
@@ -70,17 +79,11 @@ if __name__ == "__main__":
 
     # Пытаемся забрать информацию с сайта используя текущую сессию
     try:
-        # page = session.get("https://store.steampowered.com/account/"
-        #                    "history/")
-        # html_text = page.text
 
-        try:
-            # Пытаемся получить логин аккаунта
-            account = client.username
-            LOG.info("Аккаунт %s", account)
-        except (TypeError, ValueError) as err:
-            LOG.info(err)
-            LOG.info("Get account failed")
+        # Пытаемся получить логин аккаунта
+        account = client.username
+        LOG.info("Аккаунт: %s", account)
+
         try:
             # Пытаемся получить игровой псевдоним пользователя
             nickname = client.user.name
@@ -88,28 +91,16 @@ if __name__ == "__main__":
         except (TypeError, ValueError) as err:
             LOG.info(err)
             LOG.info("Get nickname failed")
-        try:
-            LOG.info("Баланс кошелька: %s %s", balance, currency)
-        except (TypeError, ValueError, NameError) as err:
-            LOG.info(err)
-            LOG.info("Get balance failed")
-        try:
-            # Пытаемся получить ссылку на аватар пользователя
-            avatar = client.user.get_avatar_url(1)
 
-            LOG.info("Аватар: %s", avatar)
-        except (TypeError, ValueError) as err:
-            LOG.info(err)
-            LOG.info("Get avatar failed")
+        LOG.info("-" * 57)
 
-        LOG.info("-" * 30)
+        avatar = client.user.get_avatar_url(1)
+        steam_id = int(client.steam_id)
 
-        steam_id = str(client.steam_id)
         create_user(steam_id, account, avatar, balance, currency)
 
     except Exception as err:
         LOG.info(type(err))
-        LOG.info(err.orig.pgcode)
         LOG.info(err)
         LOG.info("Houston, we have a problem")
 

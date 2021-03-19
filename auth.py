@@ -1,4 +1,5 @@
-"""ЗДЕСЬ МОГЛА БЫТЬ РЕКЛАМА
+"""ЗДЕСЬ МОГЛА БЫТЬ РЕКЛАМА.
+
 но весь маркетинговый бюджет ушел на булочку с корицей :<
 
 SteamLogin - Создает экземпляр класса SteamClient из библиотеки steam,
@@ -10,20 +11,19 @@ steamcommunity.com, help.steampowered.com и store.steampowered.com
 
 import json
 import os
-
 from getpass import getpass
+
 from steam.client import SteamClient
 from steam.enums import EResult
 
 
-# Переопределяем базовый класс SteamClient
 class SteamLogin(SteamClient):
-    '''
-    Создает экземпляр класса SteamClient, который запрашивает у пользователя
-    логин, пароль, токен из мобильного приложения Steam и использует их для
-    попытки авторизации на сервисах Steam. В случае неудачи, обрабатывает
-    исключение и выдает запрос на ввод недостающих данных, либо сведения об
-    ошибке.
+    """Создает экземпляр класса SteamClient.
+
+    У пользователя запрашивается логин, пароль, токен из мобильного приложения
+    Steam, которые используются для попытки авторизации на сервисах Steam.
+    В случае неудачи, поднимается исключение и выводится запрос на ввод
+    недостающих данных, либо сведения об ошибке.
 
     В процессе авторизации создается папка 'secrets' для хранения секретных
     ключей. В нее заносятся необходимые данные о пользователе для
@@ -33,7 +33,8 @@ class SteamLogin(SteamClient):
     восстановления сессии. В случае неудачи, у пользователя запрашиваются
     данные для авторизации.
 
-    '''
+    """
+
     # Указываем путь к папке для хранения персональной информации
     credential_location = "secrets"
     # Указываем путь к файлу для хранения последней сессии
@@ -41,7 +42,7 @@ class SteamLogin(SteamClient):
 
     # Переопределяем метод из базового класса SteamClient
     def cli_login(self, username='', password='', two_factor_code=None):
-        """Generates CLI prompts to complete the login process
+        """Выводит в консоль необходимые запросы для совершения авторизации.
 
         :param username: при необходимости передаем имя пользователя
         :type  username: :class:`str`
@@ -73,11 +74,13 @@ class SteamLogin(SteamClient):
                 with open(self.cookies_location, 'r',
                           encoding='utf-8') as cookie_jar:
                     credentials = json.load(cookie_jar)
+
                 username = credentials['username']
                 login_key = credentials['login_key']
             else:
                 username = input("Имя аккаунта Steam: ")
                 login_key = None
+
         # В противном случае запрашиваем имя, пароль и код 2FA
         if not login_key:
             if not password:
@@ -115,9 +118,17 @@ class SteamLogin(SteamClient):
 
             # Введен направильный пароль
             if result == EResult.InvalidPassword:
+                login_key = None
+
+                credentials = {'username': username,
+                               'login_key': login_key}
+
+                with open(self.cookies_location, 'w',
+                          encoding='utf-8') as cookie_jar:
+                    json.dump(credentials, cookie_jar, indent=2)
+
                 password = getpass("Пароль для %s введен неверно. "
                                    "Введите пароль: " % repr(username))
-                login_key = ''
 
             # Требуется код из е-мэйла
             elif result in (EResult.AccountLogonDenied,
@@ -167,6 +178,6 @@ class SteamLogin(SteamClient):
             os.makedirs(self.credential_location)
         # Записываем данные для восстановления сессии в json
         with open(self.cookies_location, 'w', encoding='utf-8') as cookie_jar:
-            json.dump(credentials, cookie_jar, indent=4)
+            json.dump(credentials, cookie_jar, indent=2)
 
         return result

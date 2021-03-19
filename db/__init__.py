@@ -1,5 +1,5 @@
 """Здесь создается сессия подключения к серверу PostgreSQL."""
-from .config import DB_NAME, POSTGRESQL_HOST, POSTGRESQL_LOGIN,\
+from config import DB_NAME, POSTGRESQL_HOST, POSTGRESQL_LOGIN,\
     POSTGRESQL_PASSWORD, POSTGRESQL_PORT
 
 from sqlalchemy import create_engine
