@@ -1,8 +1,8 @@
 """Здесь покоятся методы работы с таблицей авторизованных пользователей."""
 import logging
 
-from db import db_session
-from db.models import User
+from webapp.database import db_session
+from webapp.database.models import User
 
 
 def create_user(steam_id, user_login, avatar_url, wallet_balance, currency):
