@@ -17,8 +17,9 @@ URL = os.getenv("POSTGRESQL_URL")
 class Config(object):
     """Переменные для подключения к БД."""
 
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "you-will-never-guess"
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, '..',
+                                                          'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # SQLALCHEMY_DATABASE_URI = f'postgres://{LOGIN}:{PASSWORD}@{URL}:' \
     #                           f'{PORT}/{DATABASE}'

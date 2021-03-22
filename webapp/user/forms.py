@@ -1,4 +1,4 @@
-from webapp.database.models import User
+from webapp.user.models import User
 
 from flask_wtf import FlaskForm
 
