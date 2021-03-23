@@ -4,7 +4,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from flask_login._compat import text_type
 
-from webapp.database.models import db
+from webapp import db
 
 from werkzeug.security import check_password_hash, generate_password_hash
 

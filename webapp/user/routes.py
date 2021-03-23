@@ -57,8 +57,4 @@ def register():
 @login_required
 def profile(username):
     user = User.query.filter_by(username=username).first_or_404()
-    posts = [
-        {'owner': user, 'body': 'susan #1'},
-        {'owner': user, 'body': 'strong #2'},
-    ]
-    return render_template('user/profile.html', user=user, posts=posts)
+    return render_template('user/profile.html', user=user)

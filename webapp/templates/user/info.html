@@ -1,0 +1,35 @@
+<div class="container-fluid" style="background-color: #46602a; color: antiquewhite;">
+    <div class="row align-items-start py-md-4 px-md-4">
+        <div class="col border">
+            <table>
+                <tr valign="top">
+                    <td>
+                        <h2>Пользователь: {{ user.username }}</h2>
+                        {% if user.last_seen %}
+                            <p>Последний вход: {{ user.last_seen }}</p>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="container border py-5 px-5">
+    <table class="table table-dark">
+        <thead>
+        <h4 class="" style="text-align: left">Workers</h4>
+        </thead>
+        <tr>
+            <th>First worker</th>
+        </tr>
+        <tr>
+            <th>Second worker</th>
+        </tr>
+        <tr>
+            <th>
+                <a href="{{ url_for('worker.worker_login', username=current_user.username) }}" class="btn btn-secondary" role="button">Add new worker</a>
+            </th>
+        </tr>
+    </table>
+</div>
+

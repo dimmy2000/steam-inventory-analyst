@@ -2,7 +2,7 @@
 import logging
 
 from webapp.database import db_session
-from webapp.database.models import User
+from webapp.db import User
 
 
 def create_user(steam_id, user_login, avatar_url, wallet_balance, currency):
