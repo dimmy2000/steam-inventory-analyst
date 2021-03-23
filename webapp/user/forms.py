@@ -1,6 +1,6 @@
-from webapp.user.models import User
-
 from flask_wtf import FlaskForm
+
+from webapp.user.models import User
 
 from wtforms import BooleanField, PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
@@ -13,13 +13,15 @@ class LoginForm(FlaskForm):
                              render_kw={"class": "form-control"})
     remember_me = BooleanField('Запомнить меня',
                                render_kw={"class": "form-check-input"})
-    submit = SubmitField('Отправить', render_kw={"class": "btn btn-primary"})
+    submit = SubmitField('Отправить',
+                         render_kw={"class": "btn btn-primary btn-block"})
 
 
 class RegistrationForm(FlaskForm):
     username = StringField('Имя пользователя', validators=[DataRequired()],
                            render_kw={"class": "form-control"})
-    email = StringField('Адрес эл. почты', validators=[DataRequired(), Email()],
+    email = StringField('Адрес эл. почты', validators=[DataRequired(),
+                                                       Email()],
                         render_kw={"class": "form-control"})
     password = PasswordField('Пароль', validators=[DataRequired()],
                              render_kw={"class": "form-control"})
@@ -27,7 +29,8 @@ class RegistrationForm(FlaskForm):
                               validators=[DataRequired(),
                                           EqualTo('password')],
                               render_kw={"class": "form-control"})
-    submit = SubmitField('Отправить', render_kw={"class": "btn btn-primary"})
+    submit = SubmitField('Отправить',
+                         render_kw={"class": "btn btn-primary btn-block"})
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()

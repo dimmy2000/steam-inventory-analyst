@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-   <table>
-        <tr valign="top">
-            <td>
-                <h1>User: {{ user.username }}</h1>
-                {% if user.last_seen %}
-                    <p>Last seen on: {{ user.last_seen }}</p>
-                {% endif %}
-            </td>
-        </tr>
-    </table>
-    <hr>
+    <div style="background-color: #46602a; color: antiquewhite">
+       <table>
+            <tr valign="top">
+                <td>
+                    <h1>User: {{ user.username }}</h1>
+                    {% if user.last_seen %}
+                        <p>Last seen on: {{ user.last_seen }}</p>
+                    {% endif %}
+                </td>
+            </tr>
+       </table>
+    </div>
 {% endblock %}

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <html>
@@ -5,38 +6,28 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-
         {% if title %}
         <title>{{ title }} - Steam Inventory Analyst</title>
         {% else %}
         <title>Steam Inventory Analyst</title>
         {% endif %}
+        {% include "styles.html" %}
     </head>
     <body>
-        <div>
-            Steam Inventory Analyst:
-            {% if current_user.is_anonymous %}
-            <a href="{{ url_for('user.login') }}">Login</a>
-            {% else %}
-            <a href="{{ url_for('user.profile', username=current_user.username) }}">Home</a>
-            <a href="{{ url_for('user.logout') }}">Logout</a>
-            {% endif %}
-        </div>
-       <hr>
+        {% include "menu.html" %}
+        <hr>
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+            {% if messages %}
+            <div class="alert alert-danger" role="alert">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
-
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
