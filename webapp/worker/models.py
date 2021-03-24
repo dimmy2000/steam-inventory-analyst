@@ -1,6 +1,10 @@
 """Модель таблицы авторизованных воркеров."""
 from webapp import db
 
+from steam.client import SteamClient
+
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 class Worker(db.Model):
     """Модель таблицы привязанных аккаунтов Steam."""
@@ -9,13 +13,14 @@ class Worker(db.Model):
 
     steam_id = db.Column(db.BigInteger, unique=True, primary_key=True)
     user_login = db.Column(db.String, unique=True, nullable=False)
+    login_key = db.Column(db.String, unique=True)
     avatar_url = db.Column(db.String, nullable=False)
     wallet_balance = db.Column(db.Integer, nullable=False)
     currency = db.Column(db.String(3), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
-    def create_worker(self, steam_id, login, avatar_url, wallet_balance,
-                      currency):
+    def create_worker(self, steam_id, user_login, login_key, avatar_url,
+                      wallet_balance, currency):
         """Добавляем воркер в таблицу.
 
         Если воркер уже существует - перезаписываем данные, которые
@@ -49,8 +54,8 @@ class Worker(db.Model):
 
             else:
                 logging.info("Создаем профиль пользователя %s", login)
-                worker = User(steam_id=steam_id, user_login=login,
-                            avatar_url=avatar_url,
+                worker = Worker(steam_id=steam_id, user_login=login,
+                            login_key=login_key, avatar_url=avatar_url,
                             wallet_balance=wallet_balance,
                             currency=currency)
                 db_session.add(worker)
@@ -61,17 +66,6 @@ class Worker(db.Model):
         finally:
             logging.info(user)
 
-    def delete_user(self, steam_id):
-        """Удаляем воркера из таблицы."""
-        worker = Worker.query.filter(Worker.steam_id == steam_id).first()
-        db_session.delete(user)
-        db_session.commit()
-        logging.info(user)
-
-    def take_user(self):
-        """Берем воркера из таблицы."""
-        worker = Worker.query.first()
-        logging.info(user)
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Worker."""

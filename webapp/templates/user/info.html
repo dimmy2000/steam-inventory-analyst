@@ -1,10 +1,13 @@
 <div class="container-fluid" style="background-color: #46602a; color: antiquewhite;">
-    <div class="row align-items-start py-md-4 px-md-4">
+    <div class="row align-items-start py-4 px-4">
         <div class="col border">
             <table>
                 <tr valign="top">
                     <td>
                         <h2>Пользователь: {{ user.username }}</h2>
+                        {% if user.email %}
+                            <p>Почтовый ящик: {{ user.email }}</p>
+                        {% endif %}
                         {% if user.last_seen %}
                             <p>Последний вход: {{ user.last_seen }}</p>
                         {% endif %}
@@ -14,22 +17,23 @@
         </div>
     </div>
 </div>
-<div class="container border py-5 px-5">
+<div class="d-flex flex-column align-items-center justify-content-top border py-5 px-4">
+    <h4 class="">Workers</h4>
     <table class="table table-dark">
-        <thead>
-        <h4 class="" style="text-align: left">Workers</h4>
-        </thead>
-        <tr>
-            <th>First worker</th>
-        </tr>
-        <tr>
-            <th>Second worker</th>
-        </tr>
-        <tr>
-            <th>
-                <a href="{{ url_for('worker.worker_login', username=current_user.username) }}" class="btn btn-secondary" role="button">Add new worker</a>
-            </th>
-        </tr>
+        <thead class="border"></thead>
+        <tbody>
+            <tr>
+                <th>First worker</th>
+            </tr>
+            <tr>
+                <th>Second worker</th>
+            </tr>
+            <tr>
+                <th>
+                    <a href="{{ url_for('worker.worker_login') }}" class="btn btn-secondary" role="button">Add new worker</a>
+                </th>
+            </tr>
+        </tbody>
     </table>
 </div>
 

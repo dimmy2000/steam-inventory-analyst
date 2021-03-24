@@ -10,6 +10,7 @@ from webapp.db import db
 from webapp.config import Config
 from webapp.user.models import User
 from webapp.user.routes import blueprint as user_blueprint
+from webapp.worker.models import Worker
 from webapp.worker.routes import blueprint as worker_blueprint
 
 # Создаем экземпляр приложения.

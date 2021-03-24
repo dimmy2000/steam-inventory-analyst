@@ -14,7 +14,7 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Запомнить меня',
                                render_kw={"class": "form-check-input"})
     submit = SubmitField('Отправить',
-                         render_kw={"class": "btn btn-primary btn-block"})
+                         render_kw={"class": "btn btn-success"})
 
 
 class RegistrationForm(FlaskForm):
@@ -30,7 +30,7 @@ class RegistrationForm(FlaskForm):
                                           EqualTo('password')],
                               render_kw={"class": "form-control"})
     submit = SubmitField('Отправить',
-                         render_kw={"class": "btn btn-primary btn-block"})
+                         render_kw={"class": "btn btn-success"})
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
