@@ -1,9 +1,10 @@
 <div class="container-fluid" style="background-color: #46602a; color: antiquewhite;">
     <div class="row align-items-start py-4 px-4">
-        <div class="col border">
+        <div>
             <table>
-                <tr valign="top">
-                    <td>
+                <tr>
+                    <td class="border"><img src="{{ user.avatar(128) }}" alt="avatar"></td>
+                    <td class="px-5">
                         <h2>Пользователь: {{ user.username }}</h2>
                         {% if user.email %}
                             <p>Почтовый ящик: {{ user.email }}</p>
@@ -17,7 +18,7 @@
         </div>
     </div>
 </div>
-<div class="d-flex flex-column align-items-center justify-content-top border py-5 px-4">
+<div class="d-flex flex-column align-items-center justify-content-top border my-5 mx-4">
     <h4 class="">Workers</h4>
     <table class="table table-dark">
         <thead class="border"></thead>

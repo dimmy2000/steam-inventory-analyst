@@ -1,7 +1,6 @@
 """Модель таблицы авторизованных воркеров."""
-from webapp import db
 
-from steam.client import SteamClient
+from webapp import db
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -53,8 +52,8 @@ class Worker(db.Model):
                 db_session.commit()
 
             else:
-                logging.info("Создаем профиль пользователя %s", login)
-                worker = Worker(steam_id=steam_id, user_login=login,
+                logging.info("Создаем профиль пользователя %s", user_login)
+                worker = Worker(steam_id=steam_id, user_login=user_login,
                             login_key=login_key, avatar_url=avatar_url,
                             wallet_balance=wallet_balance,
                             currency=currency)
@@ -64,7 +63,7 @@ class Worker(db.Model):
             logging.info(type(err))
             logging.info(err)
         finally:
-            logging.info(user)
+            logging.info(worker)
 
 
     def __repr__(self):
