@@ -17,4 +17,4 @@ class Worker(db.Model):
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Worker."""
-        return f"Worker #{self.steam_id}, {self.username}."
+        return f"Worker {self.steam_id}, {self.username}."

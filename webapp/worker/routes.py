@@ -81,7 +81,8 @@ def worker_login():
                 except Exception as e:
                     flash(e, 'info')
                     print(e)
-                return redirect(url_for('user.profile'))
+                return redirect(url_for('user.profile',
+                                        username=current_user.username))
 
             elif result == EResult.InvalidPassword:
                 flash('Invalid password', 'EResult')
