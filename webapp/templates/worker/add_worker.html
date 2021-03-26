@@ -1,68 +1,64 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script>
-    var myModal = new bootstrap.Modal(document.getElementById('myModal'), {keyboard: false});
-    myModal.show();
-</script>
-<div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="myModal">
+
+<div class="modal fade bg-dark" data-bs-backdrop="static" tabindex="-1" id="myModal">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header align-items-center justify-content-center">
+        <h5 class="modal-title">
+            <span class="text-center">{{ title }} для {{ current_user.username }}</span>
+        </h5>
       </div>
-      <div class="modal-body">
-        <p>Here comes the rain again.</p>
+      <div class="modal-body border">
+        <form action="" method="post" id="login-worker">
+            {{ form.hidden_tag() }}
+             <div class="form-group p-1 border">
+                {{ form.username.label }}<br>
+                {{ form.username(size=32) }}
+                {% for error in form.username.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="form-group p-1 border">
+                {{ form.password.label }}<br>
+                {{ form.password(size=32) }}
+                {% for error in form.password.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="form-group p-1 border">
+                {{ form.auth_code.label }}<br>
+                {{ form.auth_code(size=32) }}
+                {% for error in form.auth_code.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="form-group p-1 border">
+                {{ form.two_factor_code.label }}<br>
+                {{ form.two_factor_code(size=32) }}
+                {% for error in form.two_factor_code.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+        </form>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
-      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <div>{{ form.submit_modal() }}</div>
+        </div>
     </div>
   </div>
 </div>
 
-{% with messages = get_flashed_messages(with_categories=True, category_filter=['EResult']) %}
-    {% if messages %}
-        {% for message in messages %}
-            {% with code = 'EResult.TwoFactorCodeMismatch' %}
-                {% if message[1] == code %}
-                <script></script>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#popupMessage">
-                    Enter 2FA
-                </button>
-                <div class="container border">
-                    <div class="alert alert-dark" role="alert">
-                        {{ message[1] }}
-                    </div>
-                </div>
-                {% endif %}
-            {% endwith %}
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-<div class="d-flex border align-items-center justify-content-center" style="height: 80vh">
-  <div class="d-grid gap-2 mx-auto">
-    <h1 class="text-center">{{ title }} для {{ current_user.username }}</h1>
-    <form class="d-grid align-items-center justify-content-center gap-2" action="" method="post">
-      {{ form.hidden_tag() }}
-        <div class="form-group p-1">
-          {{ form.username.label }}<br>
-          {{ form.username(size=32) }}
-          {% for error in form.username.errors %}
-          <span style="color: red;">[{{ error }}]</span>
-          {% endfor %}
-        </div>
-        <div class="form-group p-1">
-          {{ form.password.label }}<br>
-          {{ form.password(size=32) }}
-          {% for error in form.password.errors %}
-          <span style="color: red;">[{{ error }}]</span>
-          {% endfor %}
-        </div>
-        <p class="d-grid px-1 py-3">{{ form.submit() }}</p>
-    </form>
-  </div>
-</div>
 
+<script>
+var myModal = new bootstrap.Modal(document.getElementById('myModal'), {keyboard: false})
+myModal.show()
+</script>
+<script type="text/javascript">
+  function form_submit() {
+    document.getElementById("login-worker").submit();
+   }
+  </script>
 {% endblock %}

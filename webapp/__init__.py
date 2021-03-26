@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+import gevent
+import gevent.monkey
+gevent.monkey.patch_socket()
+gevent.monkey.patch_ssl()
+
 from datetime import datetime
 
 from flask import Flask, redirect, url_for
@@ -41,3 +46,6 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+
+if __name__ == '__main__':
+    app.run(debug=True)
