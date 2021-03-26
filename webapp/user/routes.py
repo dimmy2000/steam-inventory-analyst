@@ -1,3 +1,4 @@
+"""Реализация разделов сайта для работы с пользователями."""
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
@@ -12,6 +13,7 @@ blueprint = Blueprint('user', __name__, url_prefix='/users')
 
 @blueprint.route('/login', methods=['GET', 'POST'])
 def login():
+    """Авторизация пользователя."""
     title = 'Авторизация'
     if current_user.is_authenticated:
         return redirect(url_for('user.profile',
@@ -32,12 +34,14 @@ def login():
 
 @blueprint.route('/logout')
 def logout():
+    """Выход из учетной записи."""
     logout_user()
     return redirect(url_for('user.login'))
 
 
 @blueprint.route('/register', methods=['GET', 'POST'])
 def register():
+    """Регистрация нового пользователя."""
     title = 'Регистрация'
     if current_user.is_authenticated:
         return redirect(url_for('user.login'))
@@ -56,5 +60,6 @@ def register():
 @blueprint.route('/<username>')
 @login_required
 def profile(username):
+    """Профиль зарегистрированного пользователя"""
     user = User.query.filter_by(username=username).first_or_404()
     return render_template('user/profile.html', user=user)
