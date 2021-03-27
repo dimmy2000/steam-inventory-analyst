@@ -7,19 +7,19 @@ from steam.client import SteamClient
 from steam.enums import ECurrencyCode, EResult
 from steam.enums.emsg import EMsg
 
-from webapp import User, Worker, db
-from webapp.worker.forms import AddWorkerForm
+from webapp import User, Account, db
+from webapp.account.forms import SteamLoginForm
 
-blueprint = Blueprint('worker', __name__,
-                      url_prefix='/workers')
+blueprint = Blueprint('account', __name__,
+                      url_prefix='/accounts')
 
 
-@blueprint.route('/add_worker', methods=['GET', 'POST'])
+@blueprint.route('/get_session', methods=['GET', 'POST'])
 @login_required
-def worker_login():
+def get_session():
     """Авторизация воркера на серверах Steam."""
     title = 'Подключение воркера'
-    form = AddWorkerForm()
+    form = SteamLoginForm()
 
     client = SteamClient()
 
@@ -65,13 +65,13 @@ def worker_login():
                     username=current_user.username).first()
                 steam_id = int(client.steam_id)
                 avatar = client.user.get_avatar_url(2)
-                worker = Worker(steam_id=steam_id,
-                                username=username,
-                                login_key=login_key,
-                                avatar_url=avatar,
-                                wallet_balance=balance,
-                                currency=currency,
-                                user_id=int(user.user_id))
+                worker = Account(steam_id=steam_id,
+                                 username=username,
+                                 login_key=login_key,
+                                 avatar_url=avatar,
+                                 wallet_balance=balance,
+                                 currency=currency,
+                                 user_id=int(user.user_id))
                 flash(f'Logged as {username}, profile {steam_id}\n'
                       f'Balance: {balance} {currency}', 'info')
                 print(worker)
@@ -102,4 +102,4 @@ def worker_login():
             flash(e, 'info')
             print(e)
 
-    return render_template('worker/add_worker.html', title=title, form=form)
+    return render_template('account/create_session.html', title=title, form=form)

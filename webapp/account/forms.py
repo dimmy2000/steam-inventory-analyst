@@ -5,7 +5,7 @@ from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import DataRequired
 
 
-class AddWorkerForm(FlaskForm):
+class SteamLoginForm(FlaskForm):
     """Форма авторизации воркера.
 
     Передаем в нее логин и пароль пользователя Steam, опционально передаем
@@ -22,8 +22,6 @@ class AddWorkerForm(FlaskForm):
     two_factor_code = StringField('Введите код из мобильного приложения '
                                   'Steam',
                                   render_kw={"class": "form-control"})
-    submit = SubmitField('Отправить', render_kw={"class": "btn btn-success"})
-    submit_modal = SubmitField('Отправить',
-                               render_kw={"class": "btn btn-success",
-                                          "data-bs-dismiss": "modal",
-                                          "onclick": "form_submit()"})
+    submit = SubmitField('Отправить', render_kw={"class": "btn btn-success",
+                                                 "data-bs-dismiss": "modal",
+                                                 "onclick": "form_submit()"})

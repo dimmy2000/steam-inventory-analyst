@@ -1,0 +1,27 @@
+<div class="d-flex flex-column align-items-center justify-content-top my-5 mx-4">
+    <h4 class=""><b>Steam accounts</b></h4>
+    <table class="table table-dark">
+        <thead class=""></thead>
+        <tbody class="">
+            {% if accounts %}
+            {% for account in accounts %}
+            <tr class="">
+                <th class="d-flex flex-row align-items-center justify-content-start">
+                    <div class="d-inline-flex m-1"><img src="{{ account.avatar_url }}" alt="avatar" style="width:32px;height:32px;""></div>
+                    <div class="d-inline-flex m-1">{{ account.username }}</div>
+                </th>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <th class="d-flex flex-row align-items-center justify-content-start">
+                <div class="d-inline-flex m-1">Нет подключенных аккаунтов</div>
+            </th>
+            {% endif %}
+            <tr>
+            <th>
+                <a href="{{ url_for('account.get_session') }}" class="btn btn-secondary" role="button">Добавить</a>
+            </th>
+            </tr>
+        </tbody>
+    </table>
+</div>
