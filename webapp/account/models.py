@@ -1,13 +1,14 @@
-"""Модель таблицы авторизованных воркеров."""
+"""Модель таблицы авторизованных аккаунтов."""
 from webapp.db import db
 
 
-class Worker(db.Model):
+class Account(db.Model):
     """Модель таблицы привязанных аккаунтов Steam."""
 
-    __tablename__ = "workers"
+    __tablename__ = "accounts"
 
-    steam_id = db.Column(db.BigInteger, unique=True, primary_key=True)
+    account_id = db.Column(db.Integer, primary_key=True)
+    steam_id = db.Column(db.BigInteger, unique=True)
     username = db.Column(db.String, unique=True, nullable=False)
     login_key = db.Column(db.String, unique=True)
     avatar_url = db.Column(db.String)
@@ -17,4 +18,4 @@ class Worker(db.Model):
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Worker."""
-        return f"Worker {self.steam_id}, {self.username}."
+        return f"Account {self.username}."

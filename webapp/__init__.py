@@ -20,8 +20,8 @@ from webapp.db import db
 from webapp.config import Config
 from webapp.user.models import User
 from webapp.user.routes import blueprint as user_blueprint
-from webapp.worker.models import Worker
-from webapp.worker.routes import blueprint as worker_blueprint
+from webapp.account.models import Account
+from webapp.account.routes import blueprint as worker_blueprint
 
 # Создаем экземпляр приложения.
 app = Flask(__name__)
@@ -51,6 +51,7 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -5,7 +5,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from webapp import User, db
 from webapp.user.forms import LoginForm, RegistrationForm
-from webapp.worker.models import Worker
+from webapp.account.models import Account
 
 from werkzeug.urls import url_parse
 
@@ -63,7 +63,5 @@ def register():
 def profile(username):
     """Профиль зарегистрированного пользователя"""
     user = User.query.filter_by(username=username).first_or_404()
-    print(user)
-    workers = Worker.query.filter_by(user_id=user.user_id).all()
-
-    return render_template('user/profile.html', user=user, workers=workers)
+    steam_acc = Account.query.filter_by(user_id=user.user_id).all()
+    return render_template('user/profile.html', user=user, accounts=steam_acc)

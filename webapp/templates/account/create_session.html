@@ -1,7 +1,5 @@
 {% extends "base.html" %}
-
 {% block content %}
-
 <div class="modal fade bg-dark" data-bs-backdrop="static" tabindex="-1" id="myModal">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -11,7 +9,7 @@
         </h5>
       </div>
       <div class="modal-body border">
-        <form action="" method="post" id="login-worker">
+        <form action="" method="post" id="login-steam">
             {{ form.hidden_tag() }}
              <div class="form-group p-1 border">
                 {{ form.username.label }}<br>
@@ -45,20 +43,16 @@
       </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-            <div>{{ form.submit_modal() }}</div>
+            <div>{{ form.submit() }}</div>
         </div>
     </div>
   </div>
 </div>
-
-
 <script>
 var myModal = new bootstrap.Modal(document.getElementById('myModal'), {keyboard: false})
 myModal.show()
+function form_submit() {
+document.getElementById("login-steam").submit();
+}
 </script>
-<script type="text/javascript">
-  function form_submit() {
-    document.getElementById("login-worker").submit();
-   }
-  </script>
 {% endblock %}
