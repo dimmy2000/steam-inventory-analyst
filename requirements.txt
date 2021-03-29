@@ -1,4 +1,4 @@
-alembic==1.5.7
+alembic==1.5.8
 cachetools==4.2.1
 certifi==2020.12.5
 cffi==1.14.5
@@ -14,14 +14,13 @@ Flask-WTF==0.14.3
 gevent==21.1.2
 gevent-eventemitter==2.1
 greenlet==1.0.0
-idna==3.1
+idna
 itsdangerous==1.1.0
 Jinja2==2.11.3
 lazy-object-proxy==1.5.2
 Mako==1.1.4
 MarkupSafe==1.1.1
 protobuf==3.15.6
-psycopg2==2.8.6
 psycopg2-binary==2.8.6
 pycparser==2.20
 pycryptodomex==3.10.1
