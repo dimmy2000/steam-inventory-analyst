@@ -1,14 +1,16 @@
 """Реализация разделов сайта для работы с Steam-воркерами."""
 from flask import Blueprint, flash, redirect, render_template, url_for
+import logging
+import os
 
 from flask_login import current_user, login_required
 
-from steam.client import SteamClient
+from steam.client import SteamClient, EMsg
 from steam.enums import ECurrencyCode, EResult
-from steam.enums.emsg import EMsg
 
 from webapp import User, Account, db
 from webapp.account.forms import SteamLoginForm
+from webapp.account.utils import save_acc_info
 
 blueprint = Blueprint('account', __name__,
                       url_prefix='/accounts')
@@ -17,17 +19,14 @@ blueprint = Blueprint('account', __name__,
 @blueprint.route('/get_session', methods=['GET', 'POST'])
 @login_required
 def get_session():
-    """Авторизация воркера на серверах Steam."""
+    """Авторизация на серверах Steam."""
     title = 'Подключение воркера'
     form = SteamLoginForm()
 
     client = SteamClient()
 
-    login_key = None
     auth_code = None
     two_factor_code = None
-    balance = 0
-    currency = ''
 
     if form.validate_on_submit():
         username = form.username.data
@@ -38,68 +37,53 @@ def get_session():
             two_factor_code = form.two_factor_code.data
 
         try:
-            result = client.login(username, password, login_key, auth_code,
+            result = client.login(username,
+                                  password,
+                                  None,
+                                  auth_code,
                                   two_factor_code)
-
-            @client.on("new_login_key")
-            def fetch_login_key():
-                """Обрабатываем получение токена сессии."""
-                print(f"Login key is: {client.login_key}", 'info')
-                nonlocal login_key
-                login_key = client.login_key
-
-            @client.on(EMsg.ClientWalletInfoUpdate)
-            def get_wallet_balance(msg):
-                """Получаем данные по кошельку.
-
-                Сохраняем баланс кошелька в копейках и код используемой
-                валюты.
-                """
-                nonlocal balance, currency
-                balance = msg.body.balance64
-                currency = ECurrencyCode(msg.body.currency).name
-                print(f"Balance is: {balance} {currency}", 'info')
+            logging.info(f"Login result: {result}")
 
             if result == EResult.OK:
-                user = User.query.filter_by(
-                    username=current_user.username).first()
+                user = User.query.filter_by(username=current_user.username).first()
+                logging.info(f"Got: {user}")
+                flash(f'Logged on as {username}', 'info')
+                logging.info(f'Logged on as {username}')
                 steam_id = int(client.steam_id)
                 avatar = client.user.get_avatar_url(2)
-                worker = Account(steam_id=steam_id,
-                                 username=username,
-                                 login_key=login_key,
-                                 avatar_url=avatar,
-                                 wallet_balance=balance,
-                                 currency=currency,
-                                 user_id=int(user.user_id))
-                flash(f'Logged as {username}, profile {steam_id}\n'
-                      f'Balance: {balance} {currency}', 'info')
-                print(worker)
+                login_key = client.login_key
+                steam_acc = Account(steam_id=steam_id,
+                                    username=username,
+                                    login_key=login_key,
+                                    avatar_url=avatar,
+                                    user_id=int(user.user_id))
                 try:
-                    db.session.add(worker)
+                    db.session.add(steam_acc)
                     db.session.commit()
+                    logging.info("Successful db insert")
                 except Exception as e:
                     flash(e, 'info')
-                    print(e)
+                    logging.info(e)
                 return redirect(url_for('user.profile',
                                         username=current_user.username))
 
             elif result == EResult.InvalidPassword:
                 flash('Invalid password', 'EResult')
-                print('Invalid password', 'EResult')
+                logging.info('Invalid password')
 
             elif result in (EResult.AccountLogonDenied,
                             EResult.InvalidLoginAuthCode):
                 flash("Enter email code", 'EResult')
-                print("Enter email code", 'EResult')
+                logging.info("Enter email code")
 
             elif result in (EResult.AccountLoginDeniedNeedTwoFactor,
                             EResult.TwoFactorCodeMismatch):
                 flash('Enter 2FA-code', 'EResult')
-                print('Enter 2FA-code', 'EResult')
+                logging.info('Enter 2FA-code')
 
         except Exception as e:
             flash(e, 'info')
-            print(e)
+            logging.info(e)
 
-    return render_template('account/create_session.html', title=title, form=form)
+    template_path = os.path.join('account', 'create_session.html')
+    return render_template(template_path, title=title, form=form)

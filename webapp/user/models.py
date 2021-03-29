@@ -3,7 +3,6 @@ from datetime import datetime
 from hashlib import md5
 
 from flask_login import UserMixin
-from flask_login._compat import text_type
 
 from webapp.db import db
 
@@ -16,7 +15,7 @@ class Mixin(UserMixin):
     def get_id(self):
         """Меняем ожидаемый ярлык столбца с `id` на `user_id`."""
         try:
-            return text_type(self.user_id)
+            return str(self.user_id)
         except AttributeError:
             raise NotImplementedError('No `user_id` attribute - override '
                                       '`get_id`')

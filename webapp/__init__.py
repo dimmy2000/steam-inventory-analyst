@@ -5,10 +5,10 @@
 """
 # -*- coding: utf-8 -*-
 import gevent
-import gevent.monkey
-gevent.monkey.patch_socket()
-gevent.monkey.patch_ssl()
+from gevent import monkey
+gevent.monkey.patch_all()
 
+import logging
 from datetime import datetime
 
 from flask import Flask, redirect, url_for
@@ -16,12 +16,19 @@ from flask import Flask, redirect, url_for
 from flask_login import LoginManager, current_user
 
 from webapp.db import db
-
 from webapp.config import Config
 from webapp.user.models import User
 from webapp.user.routes import blueprint as user_blueprint
 from webapp.account.models import Account
 from webapp.account.routes import blueprint as worker_blueprint
+
+# Настройка логирования
+logging.basicConfig(filename="debugging.log",
+                    # filemode="w",
+                    format="%(asctime)s | %(levelname)s | %(name)s - %(message)s",
+                    datefmt="%d-%m-%Y %H:%M:%S",
+                    level=logging.DEBUG)
+logger = logging.getLogger("glob")
 
 # Создаем экземпляр приложения.
 app = Flask(__name__)

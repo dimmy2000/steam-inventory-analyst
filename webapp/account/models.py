@@ -8,8 +8,8 @@ class Account(db.Model):
     __tablename__ = "accounts"
 
     account_id = db.Column(db.Integer, primary_key=True)
-    steam_id = db.Column(db.BigInteger, unique=True)
-    username = db.Column(db.String, unique=True, nullable=False)
+    steam_id = db.Column(db.BigInteger, index=True)
+    username = db.Column(db.String, index=True, nullable=False)
     login_key = db.Column(db.String, unique=True)
     avatar_url = db.Column(db.String)
     wallet_balance = db.Column(db.Integer)
