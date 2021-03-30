@@ -5,8 +5,8 @@ import os
 
 from flask_login import current_user, login_required
 
-from steam.client import SteamClient, EMsg
-from steam.enums import ECurrencyCode, EResult
+from steam.client import SteamClient
+from steam.enums import EResult
 
 from webapp import User, Account, db
 from webapp.account.forms import SteamLoginForm
@@ -16,13 +16,14 @@ blueprint = Blueprint('account', __name__,
                       url_prefix='/accounts')
 
 
-@blueprint.route('/get_session', methods=['GET', 'POST'])
+@blueprint.route('/create_session', methods=['GET', 'POST'])
 @login_required
-def get_session():
+def create_session():
     """Авторизация на серверах Steam."""
-    title = 'Подключение воркера'
+    title = 'Подключение аккаунта Steam'
     form = SteamLoginForm()
-
+    user = User.query.filter_by(username=current_user.username).first()
+    accounts = Account.query.filter_by(user_id=user.user_id).all()
     client = SteamClient()
 
     auth_code = None
@@ -45,7 +46,6 @@ def get_session():
             logging.info(f"Login result: {result}")
 
             if result == EResult.OK:
-                user = User.query.filter_by(username=current_user.username).first()
                 logging.info(f"Got: {user}")
                 flash(f'Logged on as {username}', 'info')
                 logging.info(f'Logged on as {username}')
@@ -70,6 +70,7 @@ def get_session():
             elif result == EResult.InvalidPassword:
                 flash('Invalid password', 'EResult')
                 logging.info('Invalid password')
+                return redirect(url_for(create_session))
 
             elif result in (EResult.AccountLogonDenied,
                             EResult.InvalidLoginAuthCode):
@@ -86,4 +87,4 @@ def get_session():
             logging.info(e)
 
     template_path = os.path.join('account', 'create_session.html')
-    return render_template(template_path, title=title, form=form)
+    return render_template(template_path, accounts=accounts, user=user, title=title, form=form)

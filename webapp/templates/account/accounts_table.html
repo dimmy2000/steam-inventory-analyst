@@ -1,28 +1,46 @@
 <div class="d-flex flex-column align-items-center justify-content-top my-5 mx-4">
-    <h4 class=""><b>Steam accounts</b></h4>
-    <table class="table table-dark">
-        <thead class=""></thead>
-        <tbody class="">
-            {% if accounts %}
-            {% for account in accounts %}
-            <tr class="">
-                <th class="d-flex flex-row align-items-center justify-content-start">
-                    <div class="d-inline-flex m-1">{{ account.username }}</div>
+  <h4 class=""><b>Steam accounts</b></h4>
+  <table class="table  table-dark table-hover caption-top">
+        {% if accounts %}
+        {% for account in accounts %}
+            <thead>
+              <tr class="">
+                <th colspan="12" class="">
+                  <div class="flex-row m-1" data-bs-toggle="collapse" href="#{{ account.username }}" aria-expanded="false">{{ account.username }}</div>
                 </th>
-            </tr>
+              </tr>
+            </thead>
+            <tbody class="">
+              <tr class="collapse" onclick="openAccInfo()" id="{{ account.username }}">
+                  <td>
+                    <div class="spinner-border m-1" role="status"">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </td>
+              </tr>
+
+            </tbody>
             {% endfor %}
             {% else %}
+            <thead>
             <tr class="">
                 <th class="d-flex flex-row align-items-center justify-content-start">
-                    <div class="d-inline-flex m-1">Нет подключенных аккаунтов</div>
+                  <div class="d-inline-flex m-1">Нет подключенных аккаунтов</div>
                 </th>
             </tr>
+            </thead>
             {% endif %}
-            <tr>
-            <th>
-                <a href="{{ url_for('account.get_session') }}" class="btn btn-secondary" role="button">Добавить</a>
-            </th>
-            </tr>
-        </tbody>
-    </table>
+            <thead>
+              <tr>
+                <th colspan="12">
+                  <a href="{{ url_for('account.create_session') }}" class="btn btn-secondary" role="button">Добавить</a>
+                </th>
+              </tr>
+            </thead>
+  </table>
 </div>
+<script>
+function openAccInfo() {
+  location.href = "https://www.google.com/";
+}
+</script>

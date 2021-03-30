@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="modal fade bg-dark" data-bs-backdrop="static" tabindex="-1" id="myModal">
+{% include "user/info.html" %}
+{% include "account/accounts_table.html" %}
+<div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="loginForm">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header align-items-center justify-content-center">
@@ -8,51 +10,97 @@
             <span class="text-center">{{ title }} для {{ current_user.username }}</span>
         </h5>
       </div>
-      <div class="modal-body border">
+      <div class="modal-body">
         <form action="" method="post" id="login-steam">
-            {{ form.hidden_tag() }}
-             <div class="form-group p-1 border">
-                {{ form.username.label }}<br>
-                {{ form.username(size=32) }}
-                {% for error in form.username.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </div>
-            <div class="form-group p-1 border">
+          {{ form.hidden_tag() }}
+          <div class="form-group p-1">
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+          </div>
+          {% with messages = get_flashed_messages(category_filter='EResult') %}
+            {% if messages %}
+              {% for message in messages %}
+                {% if 'Invalid password' in message %}
+                <div class="form-group p-1">
+                  {{ form.password.label }}<br>
+                  <span style="color: red;">Пароль введен неверно. Введите пароль:</span>
+                  {{ form.password(size=32) }}
+                  {% for error in form.password.errors %}
+                  <span style="color: red;">[{{ error }}]</span>
+                  {% endfor %}
+                </div>
+                <div class="form-group p-1">
+                  {{ form.two_factor_code.label }}<br>
+                  {{ form.two_factor_code(size=32) }}
+                  {% for error in form.two_factor_code.errors %}
+                  <span style="color: red;">[{{ error }}]</span>
+                  {% endfor %}
+                </div>
+                {% elif 'Enter email code' in message %}
+                <div class="form-group p-1">
+                  {{ form.password.label }}<br>
+                  {{ form.password(size=32) }}
+                  {% for error in form.password.errors %}
+                  <span style="color: red;">[{{ error }}]</span>
+                  {% endfor %}
+                </div>
+                <div class="form-group p-1">
+                  <span style="color: red;">{{ form.auth_code.label }}</span>
+                  {{ form.auth_code(size=32) }}
+                  {% for error in form.auth_code.errors %}
+                  <span style="color: red;">[{{ error }}]</span>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="form-group p-1">
+                  {{ form.password.label }}<br>
+                  {{ form.password(size=32) }}
+                  {% for error in form.password.errors %}
+                  <span style="color: red;">[{{ error }}]</span>
+                  {% endfor %}
+                </div>
+                <div class="form-group p-1">
+                  <span style="color: red;">{{ form.two_factor_code.label }}</span>
+                  {{ form.two_factor_code(size=32) }}
+                  {% for error in form.two_factor_code.errors %}
+                  <span style="color: red;">[{{ error }}]</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <div class="form-group p-1">
                 {{ form.password.label }}<br>
                 {{ form.password(size=32) }}
                 {% for error in form.password.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
-            </div>
-            <div class="form-group p-1 border">
-                {{ form.auth_code.label }}<br>
-                {{ form.auth_code(size=32) }}
-                {% for error in form.auth_code.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </div>
-            <div class="form-group p-1 border">
+              </div>
+              <div class="form-group p-1">
                 {{ form.two_factor_code.label }}<br>
                 {{ form.two_factor_code(size=32) }}
                 {% for error in form.two_factor_code.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
-            </div>
+              </div>
+            {% endif %}
+          {% endwith %}
         </form>
       </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-            <div>{{ form.submit() }}</div>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <div>{{ form.submit() }}</div>
         </div>
     </div>
   </div>
 </div>
 <script>
-var myModal = new bootstrap.Modal(document.getElementById('myModal'), {keyboard: false})
+var myModal = new bootstrap.Modal(document.getElementById('loginForm'), {keyboard: false})
 myModal.show()
-function form_submit() {
-document.getElementById("login-steam").submit();
-}
+
+function form_submit() {document.getElementById("login-steam").submit();}
 </script>
 {% endblock %}
