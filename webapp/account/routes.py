@@ -87,4 +87,27 @@ def create_session():
             logging.info(e)
 
     template_path = os.path.join('account', 'create_session.html')
-    return render_template(template_path, accounts=accounts, user=user, title=title, form=form)
+    return render_template(template_path, title=title, form=form, user=user, accounts=accounts)
+
+
+@blueprint.route('/<steam_login>')
+def account(steam_login):
+    """Информация о подключенном аккаунте Steam."""
+    title = f'Аккаунт {steam_login}'
+    user = User.query.filter_by(username=current_user.username).first()
+    template_path = os.path.join('account', 'account.html')
+    return render_template(template_path, title=title, user=user)
+
+
+@blueprint.route('/<steam_login>/trade_history')
+def trade_history(steam_login):
+    title = f'История торговли {steam_login}'
+    template_path = os.path.join('account', 'account.html')
+    return render_template(template_path, title=title)
+
+
+@blueprint.route('/<steam_login>/items/<item_id>')
+def item_description(steam_login, item_id):
+    title = 'title'
+    template_path = os.path.join('account', 'item.html')
+    return render_template(template_path, title=title)

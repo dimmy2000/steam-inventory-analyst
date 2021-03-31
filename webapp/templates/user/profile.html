@@ -1,5 +1,7 @@
-{% extends "base.html" %}
+{% extends "base/page.html" %}
 {% block content %}
     {% include "user/info.html" %}
-    {% include "account/accounts_table.html" %}
+    <div id="main_body">
+        {% include "account/accounts_table.html" %}
+    </div>
 {% endblock %}

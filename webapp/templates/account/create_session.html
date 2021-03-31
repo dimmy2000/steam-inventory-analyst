@@ -1,7 +1,9 @@
-{% extends "base.html" %}
+{% extends "base/page.html" %}
 {% block content %}
 {% include "user/info.html" %}
-{% include "account/accounts_table.html" %}
+<div id="main_body">
+  {% include "account/accounts_table.html" %}
+</div>
 <div class="modal fade" data-bs-backdrop="static" tabindex="-1" id="loginForm">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">

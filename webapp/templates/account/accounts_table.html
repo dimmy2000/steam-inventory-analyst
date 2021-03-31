@@ -1,27 +1,25 @@
-<div class="d-flex flex-column align-items-center justify-content-top my-5 mx-4">
+<div class="d-flex flex-column align-items-center justify-content-top my-5 mx-1">
   <h4 class=""><b>Steam accounts</b></h4>
-  <table class="table  table-dark table-hover caption-top">
+  <table class="table table-dark table-hover caption-top">
         {% if accounts %}
         {% for account in accounts %}
             <thead>
               <tr class="">
-                <th colspan="12" class="">
-                  <div class="flex-row m-1" data-bs-toggle="collapse" href="#{{ account.username }}" aria-expanded="false">{{ account.username }}</div>
+                <th class="">
+                    <button class="flex-row accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#{{ account.username }}" aria-expanded="false"><b>{{ account.username }}</b></button>
                 </th>
               </tr>
             </thead>
             <tbody class="">
-              <tr class="collapse" onclick="openAccInfo()" id="{{ account.username }}">
+              <tr class="collapse" onclick="openAccInfo(document.getElementById('{{ account.username }}').getAttribute('data-href'))" data-href="{{ url_for('account.account', steam_login=account.username) }}" id="{{ account.username }}">
                   <td>
-                    <div class="spinner-border m-1" role="status"">
-                      <span class="visually-hidden">Loading...</span>
-                    </div>
+                    <span class="spinner-border spinner-border-sm m-1" role="status"></span>
+                      Loading...
                   </td>
               </tr>
-
             </tbody>
-            {% endfor %}
-            {% else %}
+        {% endfor %}
+        {% else %}
             <thead>
             <tr class="">
                 <th class="d-flex flex-row align-items-center justify-content-start">
@@ -29,7 +27,7 @@
                 </th>
             </tr>
             </thead>
-            {% endif %}
+        {% endif %}
             <thead>
               <tr>
                 <th colspan="12">
@@ -40,7 +38,7 @@
   </table>
 </div>
 <script>
-function openAccInfo() {
-  location.href = "https://www.google.com/";
+function openAccInfo(link) {
+    location.href = link;
 }
 </script>

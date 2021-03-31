@@ -9,15 +9,18 @@
         <!-- Popper and Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
+        <!-- Chart.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js" integrity="sha512-hZf9Qhp3rlDJBvAKvmiG+goaaKRZA6LKUO35oK6EsM0/kjPK32Yw7URqrq3Q+Nvbbt8Usss+IekL7CRn83dYmw==" crossorigin="anonymous"></script>
         {% if title %}
         <title>{{ title }} - Steam Inventory Analyst</title>
         {% else %}
         <title>Steam Inventory Analyst</title>
         {% endif %}
-        {% include "styles.html" %}
+        {% include "base/styles.html" %}
     </head>
     <body>
-        {% include "menu.html" %}
+
+        {% include "base/menu.html" %}
         {% with messages = get_flashed_messages(with_categories=True, category_filter=['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark']) %}
             {% if messages %}
                 {% for category, message in messages %}
