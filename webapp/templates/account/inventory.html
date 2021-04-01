@@ -11,21 +11,21 @@
               </tr>
             </thead>
             <tbody class="">
-              <tr class="">
+              <tr class="" onclick="openUrl(document.getElementById('111').getAttribute('data-href'))" data-href="{{ url_for('account.item_description', steam_login='dimkinpieces', item_id=111) }}" id="111">
                   <td><img src="https://community.akamai.steamstatic.com/economy/image/IzMF03bk9WpSBq-S-ekoE33L-iLqGFHVaU25ZzQNQcXdA3g5gMEPvUZZEfSbPLNbSM0v_2SVTY7V2NsGxnMPmChCIzb02CkoQbUpGZ2D5FW-g7rIOCWyMGeBC3GcPgYuFO4PYj3UqDentOiWFDGdRu94SgBSLqoC82MYOcCKaxQ00NZY_jW9lRR7S0QqcYtMYAj9yHsBNbg39ygfJMwHlHX1cpfehldgPEU4X7DhB77KbNKjkSwgXR9kHPYSZoKRsSG9qsGjP6GYbaZgcrc6rdca9Q3Q/32fx32f"></td>
                   <td>Цири</td>
                   <td>Коллекционная карточка из The Witcher 3: Wild Hunt</td>
                   <th>Обычная</th>
                   <td>Steam</td>
               </tr>
-              <tr class="">
+              <tr class="" onclick="openUrl(document.getElementById('222').getAttribute('data-href'))" data-href="{{ url_for('account.item_description', steam_login='dimkinpieces', item_id=222) }}" id="222">
                   <td><img src="https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxH5rd9eDAjcFyv45SRYAFMIcKL_PArgVSL403ulRUWEndVKv6gpycBVglIFRRtOPwewYz1qCdcGQb6IrhzdHZwPbwNeKAzj0D65Un0uqQpMLlhlPNIsEiPQ/32fx32f"></td>
                   <td>Самоцветы</td>
                   <td>Самоцветы из Steam</td>
                   <td></td>
                   <td>Steam</td>
               </tr>
-              <tr class="">
+              <tr class="" onclick="openUrl(document.getElementById('333').getAttribute('data-href'))" data-href="{{ url_for('account.item_description', steam_login='dimkinpieces', item_id=333) }}" id="333">
                   <td><img src="https://community.akamai.steamstatic.com/economy/image/IzMF03bk9WpSBq-S-ekoE33L-iLqGFHVaU25ZzQNQcXdA3g5gMEPvUZZEfSbPLNbSM0v_2SVTY7V2NwHxnMNmChCIzb02ClGcOl5dfLHjS7u5-uAHXPyNWCdeHiBHw4_GOANMmrQ-zel5L6URG2fE7t_FwsGfKMM82BPO8-PPxcjlNlc7We3hUB4DCkhf8RBdVLpySBKMup2yiBKfM1TnnWlJ8CMjV0zbEJtDryxX7SQO9ejmS8sW0k0AeBEM53TtSf7VmD5_w/32fx32f"></td>
                   <td>Kulu-Ya-Ku</td>
                   <td>Коллекционная карточка из Monster Hunter: World</td>
@@ -35,8 +35,3 @@
             </tbody>
   </table>
 </div>
-<script>
-function openAccInfo(link) {
-    location.href = link;
-}
-</script>

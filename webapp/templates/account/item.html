@@ -1,0 +1,47 @@
+{% extends "base/page.html" %}
+{% block content %}
+    {% include "account/info.html" %}
+    <div class="my-2" id="main_body">
+        <div class="d-flex align-items-center justify-content-center py-3 p-1">
+            <div class="m-1" style="background-color: white; position: relative; width: 100%; height: 500px">
+                <canvas id="chart1" width="3" height="2"></canvas>
+            </div>
+            <div class="m-1" style="background-color: white; position: relative; width: 100%; height: 500px">
+                <canvas id="chart2" width="3" height="2"></canvas>
+            </div>
+        </div>
+    </div>
+<script>
+   var Canvas1 = document.getElementById("chart1").getContext("2d");
+   var Canvas2 = document.getElementById("chart2").getContext("2d");
+   var speedData = {
+  labels: ["0s", "10s", "20s", "30s", "40s", "50s", "60s"],
+  datasets: [{
+    label: "Something",
+    data: [0, 59, 75, 20, 20, 55, 40],
+  }]
+};
+var chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    legend: {
+        display: true,
+        position: 'top',
+        labels: {
+            boxWidth: 80,
+            fontColor: 'black'
+        }
+    }
+};
+var lineChart1 = new Chart(Canvas1, {
+    type: 'line',
+    data: speedData,
+    options: chartOptions
+});
+var lineChart2 = new Chart(Canvas2, {
+    type: 'line',
+    data: speedData,
+    options: chartOptions
+});
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base/page.html" %}
+{% block content %}
+    {% include "account/info.html" %}
+    <div class="my-2" id="main_body">
+        <div class="d-flex align-items-center justify-content-center py-3 p-1">
+            {% include "account/trade_history_chart.html" %}
+        </div>
+    </div>
+{% endblock %}

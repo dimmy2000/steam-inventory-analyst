@@ -2,7 +2,7 @@
 {% block content %}
     {% include "account/info.html" %}
     <div class="my-2" id="main_body">
-        <div class="d-flex align-items-center justify-content-center py-3 p-1">
+        <div class="d-flex align-items-center justify-content-center py-3 p-1" onclick="openUrl(document.getElementById('chart1').getAttribute('data-href'))" data-href="{{ url_for('account.trade_history', steam_login='dimkinpieces') }}" id="chart1">
             {% include "account/trade_history_chart.html" %}
         </div>
         <div class="py-3 p-1">

@@ -101,13 +101,15 @@ def account(steam_login):
 
 @blueprint.route('/<steam_login>/trade_history')
 def trade_history(steam_login):
+    """Информация об истории торговли подключенного аккаунта Steam."""
     title = f'История торговли {steam_login}'
-    template_path = os.path.join('account', 'account.html')
+    template_path = os.path.join('account', 'trade_history.html')
     return render_template(template_path, title=title)
 
 
 @blueprint.route('/<steam_login>/items/<item_id>')
 def item_description(steam_login, item_id):
+    """Описание предмета из коллекции Steam."""
     title = 'title'
     template_path = os.path.join('account', 'item.html')
     return render_template(template_path, title=title)
