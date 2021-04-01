@@ -5,6 +5,7 @@
 """
 # -*- coding: utf-8 -*-
 import gevent
+from flask_migrate import Migrate
 from gevent import monkey
 gevent.monkey.patch_all()
 
@@ -27,13 +28,14 @@ logging.basicConfig(filename="debugging.log",
                     # filemode="w",
                     format="%(asctime)s | %(levelname)s | %(name)s - %(message)s",
                     datefmt="%d-%m-%Y %H:%M:%S",
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 logger = logging.getLogger("glob")
 
 # Создаем экземпляр приложения.
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+migrate = Migrate(app, db)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
