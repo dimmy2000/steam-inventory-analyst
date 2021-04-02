@@ -3,8 +3,9 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 
-from webapp import User, db
+from webapp import db
 from webapp.user.forms import LoginForm, RegistrationForm
+from webapp.user.models import User
 from webapp.account.models import Account
 
 from werkzeug.urls import url_parse

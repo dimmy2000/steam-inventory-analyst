@@ -4,7 +4,7 @@ from hashlib import md5
 
 from flask_login import UserMixin
 
-from webapp.db import db
+from webapp import db
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
