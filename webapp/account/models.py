@@ -1,5 +1,5 @@
 """Модель таблицы авторизованных аккаунтов."""
-from webapp.db import db
+from webapp import db
 
 
 class Account(db.Model):
@@ -11,7 +11,9 @@ class Account(db.Model):
     steam_id = db.Column(db.BigInteger, index=True)
     username = db.Column(db.String, index=True, nullable=False)
     login_key = db.Column(db.String, unique=True)
+    sentry = db.Column(db.LargeBinary)
     avatar_url = db.Column(db.String)
+    nickname = db.Column(db.String)
     wallet_balance = db.Column(db.Integer)
     currency = db.Column(db.String(3))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
