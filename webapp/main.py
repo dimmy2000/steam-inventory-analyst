@@ -6,8 +6,7 @@
 # -*- coding: utf-8 -*-
 import gevent
 from gevent import monkey
-gevent.monkey.patch_socket()
-gevent.monkey.patch_ssl()
+gevent.monkey.patch_all()
 
 from datetime import datetime
 
