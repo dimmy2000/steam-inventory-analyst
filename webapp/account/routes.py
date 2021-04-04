@@ -12,13 +12,13 @@ from webapp.user.models import User
 
 blueprint = Blueprint('account', __name__,
                       url_prefix='/accounts')
-logger = get_logger('app')
+logger = get_logger('account.routes')
 
 
 @blueprint.route('/make_session', methods=['GET', 'POST'])
 @login_required
 def make_session():
-    """Подключение для пользователя нового оккаунта Steam."""
+    """Подключение для пользователя нового аккаунта Steam."""
     title = 'Подключение аккаунта Steam'
     form = SteamLoginForm()
     user = db.session.query(User).filter_by(

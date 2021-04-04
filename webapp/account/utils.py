@@ -2,13 +2,13 @@
 from flask import flash, redirect, url_for
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
 from steam.client import SteamClient
-from steam.enums import EResult, ECurrencyCode
+from steam.enums import ECurrencyCode, EResult
 from steam.enums.emsg import EMsg
 
 from webapp import db, get_logger
 from webapp.account.models import Account
 
-logger = get_logger('app')
+logger = get_logger('account.utils')
 
 
 class SteamLogin(SteamClient):
@@ -41,7 +41,15 @@ def auth_attempt(user,
                  password,
                  auth_code=None,
                  two_factor_code=None):
-    """Авторизация на серверах Steam."""
+    """Авторизация на серверах Steam.
+
+    По полученным учетным данным делаем попытку авторизации с помощью
+    SteamClient(). При успешном входе пишем полученные данные о пользователе
+    в БД с помощью функции save_acc_info и возвращаем True. В случае неудачной
+    авторизации обрабатываем возможные запросы ввода дополнительных данных.
+    В случае невозможности устранения причин отказа в авторизации возвращаем
+    False.
+    """
     logger.info("Got into auth attempt function")
     client = SteamLogin()
 
@@ -96,8 +104,8 @@ def auth_attempt(user,
 def save_acc_info(user_id, username, login_key, steam_id, avatar_url, sentry):
     """Добавляем подключенный аккаунт Steam в БД.
 
-    Если аккаунт уже существует - перезаписываем данные, которые
-    нуждаются в обновлении.
+    Если аккаунт уже существует - перезаписываем данные, которые могли
+    измениться.
 
     """
     logger.info("Got into save account info function")
@@ -109,25 +117,21 @@ def save_acc_info(user_id, username, login_key, steam_id, avatar_url, sentry):
         if steam_acc:
             logger.info(f"Аккаунт {username} имеется в БД. Попытка обновить "
                         f"данные")
-            # Создаем список столбцов, содержимое которых могло измениться
-            columns = ["avatar_url", "login_key", "sentry"]
+            # Создаем список столбцов, содержимое которых надо обновить
+            columns = {"avatar_url": avatar_url,
+                       "login_key": login_key,
+                       "sentry": sentry}
 
-            for column in columns:
-                # если содержимое ячейки изменилось - перезаписываем
-                if getattr(steam_acc, column) != eval(column)\
-                        and eval(column) is not None:
-                    logger.info("at first")
+            for column in columns.keys():
+                # Если содержимое ячейки изменилось - перезаписываем его
+                if getattr(steam_acc, column) != columns[column]:
                     logger.info(
-                        f"Account {column} is: {getattr(steam_acc, column)}")
-                    logger.info("but then")
-
-                    try:
-                        setattr(steam_acc, column, eval(column))
-                    except Exception as err:
-                        logger.info(type(err), err)
-
+                        f"Old account {column} is: "
+                        f"{getattr(steam_acc,column)}")
+                    setattr(steam_acc, column, columns[column])
                     logger.info(
-                        f"Account {column} is: {getattr(steam_acc, column)}")
+                        f"New account {column} is: "
+                        f"{getattr(steam_acc, column)}")
             db.session.commit()
 
         else:

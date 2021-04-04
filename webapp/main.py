@@ -5,22 +5,20 @@
 """
 # -*- coding: utf-8 -*-
 import gevent
-from gevent import monkey
+from gevent import monkey  # noqa: F401
 gevent.monkey.patch_all()
 
-from datetime import datetime
+from datetime import datetime  # noqa: E402, I100
 
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for  # noqa: E402
+from flask_login import LoginManager, current_user  # noqa: E402
+from flask_migrate import Migrate  # noqa: E402
 
-from flask_login import LoginManager, current_user
-
-from flask_migrate import Migrate
-
-from webapp import db
-from webapp.account.routes import blueprint as worker_blueprint
-from webapp.config import Config
-from webapp.user.models import User
-from webapp.user.routes import blueprint as user_blueprint
+from webapp import db  # noqa: E402
+from webapp.account.routes import blueprint as worker_blueprint  # noqa: E402
+from webapp.config import Config  # noqa: E402
+from webapp.user.models import User  # noqa: E402
+from webapp.user.routes import blueprint as user_blueprint  # noqa: E402
 
 
 def create_app():
