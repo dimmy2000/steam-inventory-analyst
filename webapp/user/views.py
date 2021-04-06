@@ -1,14 +1,15 @@
 """Реализация разделов сайта для работы с пользователями."""
+import os
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.urls import url_parse
 
-from webapp import db
+from webapp.account.models import Account
+from webapp.db import db
 from webapp.user.forms import LoginForm, RegistrationForm
 from webapp.user.models import User
-from webapp.account.models import Account
-
-from werkzeug.urls import url_parse
 
 blueprint = Blueprint('user', __name__, url_prefix='/users')
 
@@ -29,9 +30,13 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('user.profile', username=form.username.data)
+            next_page = url_for('user.profile',
+                                username=form.username.data)
         return redirect(next_page)
-    return render_template('user/login.html', title=title, form=form)
+    template_path = os.path.join('user', 'login.html')
+    return render_template(template_path,
+                           title=title,
+                           form=form)
 
 
 @blueprint.route('/logout')
@@ -55,7 +60,9 @@ def register():
         db.session.commit()
         flash('You are now a registered user!', 'success')
         return redirect(url_for('user.login'))
-    return render_template('user/register.html', title=title,
+    template_path = os.path.join('user', 'register.html')
+    return render_template(template_path,
+                           title=title,
                            form=form)
 
 
@@ -65,4 +72,7 @@ def profile(username):
     """Профиль зарегистрированного пользователя"""
     user = User.query.filter_by(username=username).first_or_404()
     steam_acc = Account.query.filter_by(user_id=user.user_id).all()
-    return render_template('user/profile.html', user=user, accounts=steam_acc)
+    template_path = os.path.join('user', 'profile.html')
+    return render_template(template_path,
+                           user=user,
+                           accounts=steam_acc)

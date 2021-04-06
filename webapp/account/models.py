@@ -1,5 +1,5 @@
 """Модель таблицы авторизованных аккаунтов."""
-from webapp import db
+from webapp.db import db
 
 
 class Account(db.Model):

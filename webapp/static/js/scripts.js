@@ -1,5 +1,3 @@
-<script>
 function openUrl(link) {
     location.href = link;
 }
-</script>

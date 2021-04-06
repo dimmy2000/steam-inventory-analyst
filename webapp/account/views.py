@@ -4,15 +4,14 @@ import os
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from webapp import db, get_logger
 from webapp.account.forms import SteamLoginForm
 from webapp.account.models import Account
 from webapp.account.utils import auth_attempt, update_acc_info
+from webapp.db import db
 from webapp.user.models import User
 
 blueprint = Blueprint('account', __name__,
                       url_prefix='/accounts')
-logger = get_logger('account.routes')
 
 
 @blueprint.route('/make_session', methods=['GET', 'POST'])
