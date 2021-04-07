@@ -1,7 +1,7 @@
 """Внешние утилиты для работы с подключенными аккаунтами."""
 import logging
 
-from flask import flash, redirect, url_for, current_app
+from flask import current_app, flash, redirect, url_for
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
 from steam.client import SteamClient
 from steam.enums import ECurrencyCode, EResult
@@ -15,6 +15,13 @@ class SteamLogin(SteamClient):
     """Переопределяем базовый класс SteamClient."""
 
     sentry = None
+    wallet_balance = None
+    currency = None
+
+    def __init__(self):
+        """Создаем свой хандлер информации о балансе кошелька."""
+        super().__init__()
+        self.on(EMsg.ClientWalletInfoUpdate, self._get_wallet_balance)
 
     def store_sentry(self, username, sentry_bytes):
         """Store sentry bytes under a username.
@@ -28,15 +35,43 @@ class SteamLogin(SteamClient):
         """
         try:
             self.sentry = sentry_bytes
-            current_app.logger.info("sentry is: %s" % sentry_bytes)
+            logging.debug("Sentry is: %s" % sentry_bytes)
             return True
         except IOError as e:
-            self._LOG.error("store_sentry: %s" % str(e))
+            self._LOG.error("Store_sentry: %s" % str(e))
 
         return False
 
+    def get_sentry(self, username):
+        """Return contents of sentry file for the given username.
 
-def auth_attempt(user,
+        .. note::
+            returns ``None`` if :attr:`credential_location` is not set, or
+            file is not found/inaccessible
+
+        :param username: username
+        :type  username: str
+        :return: sentry file contents, or ``None``
+        :rtype: :class:`bytes`, :class:`None`
+        """
+        account = db.session.query(Account).filter_by(
+            username=username).first()
+        if account:
+            self.sentry = account.sentry
+            logging.debug("Got sentry: %s" % self.sentry)
+            return self.sentry
+        return None
+
+    def _get_wallet_balance(self, msg):
+        """Получаем баланс кошелька и пишем его в БД."""
+        logging.info("Get wallet balance function")
+        self.wallet_balance = msg.body.balance64
+        self.currency = ECurrencyCode(msg.body.currency).name
+        logging.info(f"Balance: {self.wallet_balance//100}."
+                     f"{self.wallet_balance%100} {self.currency}")
+
+
+def auth_attempt(user_id,
                  username,
                  password,
                  auth_code=None,
@@ -50,7 +85,7 @@ def auth_attempt(user,
     В случае невозможности устранения причин отказа в авторизации возвращаем
     False.
     """
-    current_app.logger.info("Got into auth attempt function")
+    current_app.logger.info("Auth attempt function")
     client = SteamLogin()
 
     login_result = client.login(username=username,
@@ -63,24 +98,30 @@ def auth_attempt(user,
 
     if login_result == EResult.OK:
         # В случае успешной авторизации пишем полученные данные в БД
-        current_app.logger.info(f"Got: {user}")
         flash(f'Logged on as {username}', 'info')
         current_app.logger.info(f'Logged on as {username}')
-        current_app.logger.info("Got sentry: %s" % client.sentry)
+        current_app.logger.debug("Got sentry: %s" % client.sentry)
 
         steam_id = int(client.steam_id)
         avatar_url = client.user.get_avatar_url(2)
         login_key = client.login_key
         sentry = client.sentry
-        user_id = user.user_id
+        nickname = client.user.name
+        wallet_balance = client.wallet_balance
+        currency = client.currency
 
         save_acc_info(steam_id=steam_id,
                       username=username,
                       login_key=login_key,
+                      user_id=user_id,
                       sentry=sentry,
                       avatar_url=avatar_url,
-                      user_id=user_id)
+                      nickname=nickname,
+                      wallet_balance=wallet_balance,
+                      currency=currency,
+                      )
 
+        client.disconnect()
         return True
 
     elif login_result == EResult.InvalidPassword:
@@ -98,75 +139,58 @@ def auth_attempt(user,
         flash('Enter 2FA-code', 'EResult')
         current_app.logger.info('Enter 2FA-code')
 
+    client.disconnect()
     return False
 
 
-def save_acc_info(user_id, username, login_key, steam_id, avatar_url, sentry):
+def save_acc_info(user_id, username, login_key, sentry, **kwargs):
     """Добавляем подключенный аккаунт Steam в БД.
 
-    Если аккаунт уже существует - перезаписываем данные, которые могли
-    измениться.
-
+    Если аккаунт уже существует - обновляем данные, которые изменились.
     """
-    current_app.logger.info("Got into save account info function")
-    try:
-        steam_acc = db.session.query(Account).filter_by(
+    current_app.logger.info("Save account info function")
+    # Создаем список переменных переданных функции
+    attributes = {
+        "login_key": login_key,
+        "sentry": sentry,
+    }
+    for key, value in kwargs.items():
+        attributes[key] = value
+
+    steam_acc = db.session.query(Account).filter_by(
+        username=username).first()
+
+    if steam_acc:
+        current_app.logger.info(f"Account {username} already exists. "
+                                f"Trying to update data.")
+        for attribute, value in attributes.items():
+            # Если содержимое ячейки изменилось - перезаписываем его
+            if value is not None:
+                if getattr(steam_acc, attribute) != value:
+                    current_app.logger.info(
+                        f"Old account {attribute} is: "
+                        f"{getattr(steam_acc, attribute)}")
+                    setattr(steam_acc, attribute, value)
+                    current_app.logger.info(
+                        f"New account {attribute} is: "
+                        f"{getattr(steam_acc, attribute)}")
+    else:
+        current_app.logger.info("Create account %s", username)
+        steam_acc = Account(
             username=username,
-            user_id=user_id).first()
-
-        if steam_acc:
-            current_app.logger.info(f"Аккаунт {username} имеется в БД. Попытка обновить "
-                        f"данные")
-            # Создаем список столбцов, содержимое которых надо обновить
-            columns = {"avatar_url": avatar_url,
-                       "login_key": login_key,
-                       "sentry": sentry}
-
-            for column in columns.keys():
-                # Если содержимое ячейки изменилось - перезаписываем его
-                if getattr(steam_acc, column) != columns[column]:
-                    current_app.logger.info(
-                        f"Old account {column} is: "
-                        f"{getattr(steam_acc,column)}")
-                    setattr(steam_acc, column, columns[column])
-                    current_app.logger.info(
-                        f"New account {column} is: "
-                        f"{getattr(steam_acc, column)}")
-            db.session.commit()
-
-        else:
-            current_app.logger.info("Создаем account %s", username)
-            steam_acc = Account(steam_id=steam_id,
-                                username=username,
-                                login_key=login_key,
-                                avatar_url=avatar_url,
-                                sentry=sentry,
-                                user_id=user_id)
-            db.session.add(steam_acc)
-            db.session.commit()
-            current_app.logger.info("Запись в БД прошла успешно")
-    except (DBAPIError, SQLAlchemyError) as err:
-        flash(err, 'info')
-        current_app.logger.info(type(err))
-        current_app.logger.info(err)
+            user_id=user_id,
+        )
+        for attribute, value in attributes.items():
+            setattr(steam_acc, attribute, value)
+        db.session.add(steam_acc)
+    db.session.commit()
+    current_app.logger.info("Successful DB injection")
 
 
 def update_acc_info(db_steam_acc):
     """Обновляем информацию об аккаунте в таблице."""
-    current_app.logger.info("Got into update account info function")
+    current_app.logger.info("Update account info function")
     steam_account = SteamLogin()
-
-    @steam_account.on(EMsg.ClientWalletInfoUpdate)
-    def get_wallet_balance(msg):
-        """Получаем баланс кошелька и пишем его в БД."""
-        current_app.logger.info("Got into get wallet balance function")
-        wallet_balance = msg.body.balance64
-        currency = ECurrencyCode(msg.body.currency).name
-        current_app.logger.info(f"balance: {wallet_balance} {currency}")
-        db_steam_acc.wallet_balance = wallet_balance
-        db_steam_acc.currency = currency
-        db.session.add(db_steam_acc)
-        db.session.commit()
 
     login_result = steam_account.login(username=db_steam_acc.username,
                                        login_key=db_steam_acc.login_key)
@@ -179,10 +203,14 @@ def update_acc_info(db_steam_acc):
         # Получаем данные об аккаунте
         avatar_url = steam_account.user.get_avatar_url(2)
         nickname = steam_account.user.name
+        wallet_balance = steam_account.wallet_balance
+        currency = steam_account.currency
         sentry = steam_account.sentry
         # Пишем полученные данные в базу
         db_steam_acc.avatar_url = avatar_url
         db_steam_acc.nickname = nickname
+        db_steam_acc.wallet_balance = wallet_balance
+        db_steam_acc.currency = currency
         if db_steam_acc.sentry is None:
             db_steam_acc.sentry = sentry
 
@@ -194,4 +222,4 @@ def update_acc_info(db_steam_acc):
             current_app.logger.info(err)
     else:
         flash(f'Сессия {db_steam_acc.username} истекла. Нужна повторная '
-              f'авторизация', 'info')
+              f'авторизация', 'light')

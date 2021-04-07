@@ -23,7 +23,7 @@ def login():
                                 username=current_user.username))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = db.session.query(User).filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password', 'danger')
             return redirect(url_for('user.login'))
@@ -34,9 +34,7 @@ def login():
                                 username=form.username.data)
         return redirect(next_page)
     template_path = os.path.join('user', 'login.html')
-    return render_template(template_path,
-                           title=title,
-                           form=form)
+    return render_template(template_path, title=title, form=form)
 
 
 @blueprint.route('/logout')
@@ -61,18 +59,14 @@ def register():
         flash('You are now a registered user!', 'success')
         return redirect(url_for('user.login'))
     template_path = os.path.join('user', 'register.html')
-    return render_template(template_path,
-                           title=title,
-                           form=form)
+    return render_template(template_path, title=title, form=form)
 
 
 @blueprint.route('/<username>')
 @login_required
 def profile(username):
     """Профиль зарегистрированного пользователя"""
-    user = User.query.filter_by(username=username).first_or_404()
-    steam_acc = Account.query.filter_by(user_id=user.user_id).all()
+    user = db.session.query(User).filter_by(username=username).first_or_404()
+    accounts = db.session.query(Account).filter_by(user_id=user.user_id)
     template_path = os.path.join('user', 'profile.html')
-    return render_template(template_path,
-                           user=user,
-                           accounts=steam_acc)
+    return render_template(template_path, user=user, accounts=accounts)

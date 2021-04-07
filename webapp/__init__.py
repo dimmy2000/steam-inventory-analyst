@@ -8,33 +8,25 @@ import gevent
 from gevent import monkey  # noqa: F401
 gevent.monkey.patch_all()
 
-import os
-from datetime import datetime  # noqa: E402, I100
+import os # noqa: E402, I100
+from datetime import datetime
 
-from flask import Flask, redirect, url_for, current_app  # noqa: E402
-from flask_login import LoginManager, current_user  # noqa: E402
-from flask_migrate import Migrate  # noqa: E402
+from flask import Flask, redirect, url_for, current_app
+from flask_login import LoginManager, current_user
+from flask_migrate import Migrate
 
-from webapp.account.views import blueprint as worker_blueprint  # noqa: E402
-from webapp.config import Config  # noqa: E402
-from webapp.db import db  # noqa: E402
-from webapp.user.models import User  # noqa: E402
-from webapp.user.views import blueprint as user_blueprint  # noqa: E402
-from flask_logs import LogSetup
+from webapp.account.views import blueprint as worker_blueprint
+from webapp.config import Config
+from webapp.db import db
+from webapp.flask_logs import LogSetup
+from webapp.user.models import User
+from webapp.user.views import blueprint as user_blueprint
+
 
 def create_app():
     """Создаем экземпляр приложения."""
-    app = Flask(__name__)
+    app = Flask(__name__.split('.')[0])
     app.config.from_object(Config)
-
-    app.config["LOG_TYPE"] = os.environ.get("LOG_TYPE", "watched")
-    app.config["LOG_LEVEL"] = os.environ.get("LOG_LEVEL", "INFO")
-    app.config['LOG_DIR'] = os.environ.get("LOG_DIR", "./")
-    app.config['APP_LOG_NAME'] = os.environ.get("APP_LOG_NAME", "app.log")
-    app.config['WWW_LOG_NAME'] = os.environ.get("WWW_LOG_NAME", "www.log")
-
-    logs = LogSetup()
-    logs.init_app(app)
 
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -43,8 +35,8 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'user.login'
 
-    app.register_blueprint(user_blueprint)
-    app.register_blueprint(worker_blueprint)
+    register_extensions(app)
+    register_blueprints(app)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -62,6 +54,18 @@ def create_app():
             db.session.commit()
 
     return app
+
+
+def register_extensions(app):
+    logs = LogSetup()
+    logs.init_app(app)
+    return None
+
+
+def register_blueprints(app):
+    app.register_blueprint(user_blueprint)
+    app.register_blueprint(worker_blueprint)
+    return None
 
 
 if __name__ == '__main__':

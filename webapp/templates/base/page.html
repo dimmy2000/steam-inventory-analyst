@@ -21,14 +21,17 @@
         {% endif %}
     </head>
     <body>
-
         {% include "base/menu.html" %}
         {% with messages = get_flashed_messages(with_categories=True, category_filter=['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark']) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="container-fluid py-4 px-4">
                         <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
+                            <div class="d-inline-flex px-2">{{ message }}</div>
+                            {% if category == 'light' %}
+                            {% set account = request.path.split('/accounts/')[1] %}
+                            <a role="button" class="btn btn-primary btn-sm d-inline-flex" href="{{ url_for('account.make_session', login=account) }}">Восстановить</a>
+                            {% endif %}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>

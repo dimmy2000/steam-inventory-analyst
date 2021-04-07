@@ -9,7 +9,7 @@
     <div class="modal-content">
       <div class="modal-header align-items-center justify-content-center">
         <h5 class="modal-title">
-            <span class="text-center">{{ title }} для {{ current_user.username }}</span>
+          <span class="text-center">{{ title }} для {{ current_user.username }}</span>
         </h5>
       </div>
       <div class="modal-body">
@@ -17,7 +17,7 @@
           {{ form.hidden_tag() }}
           <div class="form-group p-1">
             {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
+            {{ form.username(size=32, value=login) }}
             {% for error in form.username.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}

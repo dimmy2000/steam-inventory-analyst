@@ -9,67 +9,67 @@
           <th class=""></th>
       </tr>
       </thead>
-        {% if accounts %}
-        {% for account in accounts %}
-            <thead>
-              <tr class="">
-                <th class="" colspan="5">
-                    <button class="flex-row accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#{{ account.username }}" aria-expanded="false"><b>{{ account.username }}</b></button>
-                </th>
-              </tr>
-            </thead>
-            <tbody class="">
-              <tr class="collapse" onclick="openUrl(document.getElementById('{{ account.username }}').getAttribute('data-href'))" data-href="{{ url_for('account.account', steam_login=account.username) }}" id="{{ account.username }}">
-                  {% if account.avatar_url %}
-                  <td class="col-1">
-                      <img class="border" src="{{ account.avatar_url }}" alt="{{ account.username }}-avatar" width="32" height="32">
-                  </td>
-                  {% else%}
-                  <td>
-                    <span class="spinner-border spinner-border-sm m-1" role="status"></span>
-                      Загрузка...
-                  </td>
-                  {% endif%}
-                  {% if account.nickname %}
-                  <td class="col-2">
-                      {{ account.nickname }}
-                  </td>
-                  {% else%}
-                  <td>
-                    <span class="spinner-border spinner-border-sm m-1" role="status"></span>
-                      Загрузка...
-                  </td>
-                  {% endif%}
-                  {% if account.currency %}
-                  <td class="col-2">
-                      {{ account.wallet_balance/100 }} {{ account.currency }}
-                  </td>
-                  {% else%}
-                  <td>
-                    <span class="spinner-border spinner-border-sm m-1" role="status"></span>
-                      Загрузка...
-                  </td>
-                  {% endif%}
-                  <td></td>
-              </tr>
-            </tbody>
+      {% if accounts %}
+        {% for account in accounts|sort(attribute='username') %}
+        <thead>
+          <tr class="">
+            <th class="" colspan="5">
+                <button class="flex-row accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#{{ account.username }}" aria-expanded="false"><b>{{ account.username }}</b></button>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="">
+          <tr class="collapse" onclick="openUrl(document.getElementById('{{ account.username }}').getAttribute('data-href'))" data-href="{{ url_for('account.account', steam_login=account.username) }}" id="{{ account.username }}">
+              {% if account.avatar_url %}
+              <td class="col-1">
+                  <img class="border" src="{{ account.avatar_url }}" alt="{{ account.username }}-avatar" width="32" height="32">
+              </td>
+              {% else%}
+              <td>
+                <span class="spinner-border spinner-border-sm m-1" role="status"></span>
+                  Загрузка...
+              </td>
+              {% endif%}
+              {% if account.nickname %}
+              <td class="col-2">
+                  {{ account.nickname }}
+              </td>
+              {% else%}
+              <td>
+                <span class="spinner-border spinner-border-sm m-1" role="status"></span>
+                  Загрузка...
+              </td>
+              {% endif%}
+              {% if account.currency %}
+              <td class="col-2">
+                  {{ account.wallet_balance/100 }} {{ account.currency }}
+              </td>
+              {% else%}
+              <td>
+                <span class="spinner-border spinner-border-sm m-1" role="status"></span>
+                  Загрузка...
+              </td>
+              {% endif%}
+              <td><a href='{{url_for("account.remove_account", steam_login=account.username) }}' class="btn btn-danger btn-sm float-end me-2 px-3" role="button">Отключить</a></td>
+          </tr>
+        </tbody>
         {% endfor %}
-        {% else %}
-            <thead>
-            <tr class="">
-                <th class="d-flex flex-row align-items-center justify-content-start">
-                  <div class="d-inline-flex m-1">Нет подключенных аккаунтов</div>
-                </th>
-            </tr>
-            </thead>
-        {% endif %}
-            <thead>
-              <tr>
-                <th colspan="12">
-                  <a href="{{ url_for('account.make_session') }}" class="btn btn-secondary" role="button">Добавить</a>
-                </th>
-              </tr>
-            </thead>
+      {% else %}
+        <thead>
+        <tr>
+            <th class="flex-row align-items-center justify-content-start" colspan="12">
+              <div class="m-1">Нет подключенных аккаунтов</div>
+            </th>
+        </tr>
+        </thead>
+      {% endif %}
+      <thead>
+        <tr>
+          <th colspan="12">
+            <a href="{{ url_for('account.make_session') }}" class="btn btn-secondary" role="button">Добавить</a>
+          </th>
+        </tr>
+      </thead>
   </table>
 </div>
 <script>

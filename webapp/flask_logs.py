@@ -1,11 +1,11 @@
-from logging.config import dictConfig
+"""Logging configuration file for flask.
 
-"""
 We have options in python for stdout (streamhandling) and file logging
 File logging has options for a Rotating file based on size or time (daily)
 or a watched file, which supports logrotate style rotation
 Most of the changes happen in the handlers, lets define a few standards
 """
+from logging.config import dictConfig
 
 
 class LogSetup(object):
@@ -38,11 +38,12 @@ class LogSetup(object):
         std_format = {
             "formatters": {
                 "default": {
-                    "format": "%(asctime)s | %(levelname)s | %(name)s | %(module)s | %(threadName)s | %(message)s",
+                    "format": "%(asctime)s | %(levelname)s | %(name)s | "
+                              "%(module)s | %(message)s",
                     "datefmt": "%d-%m-%Y %H:%M:%S",
                 },
                 "access": {"format": "%(message)s"},
-            }
+            },
         }
         std_logger = {
             "loggers": {
@@ -53,7 +54,7 @@ class LogSetup(object):
                     "propagate": False,
                 },
                 "root": {"level": logging_level, "handlers": ["default"]},
-            }
+            },
         }
         if log_type == "stream":
             logging_handler = {
@@ -68,7 +69,7 @@ class LogSetup(object):
                         "class": logging_policy,
                         "formatter": "access",
                     },
-                }
+                },
             }
         elif log_type == "watched":
             logging_handler = {
@@ -87,7 +88,7 @@ class LogSetup(object):
                         "formatter": "access",
                         "delay": True,
                     },
-                }
+                },
             }
         else:
             logging_handler = {
@@ -110,7 +111,7 @@ class LogSetup(object):
                         "formatter": "access",
                         "delay": True,
                     },
-                }
+                },
             }
 
         log_config = {
