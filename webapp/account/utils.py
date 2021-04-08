@@ -110,16 +110,17 @@ def auth_attempt(user_id,
         wallet_balance = client.wallet_balance
         currency = client.currency
 
-        save_acc_info(steam_id=steam_id,
-                      username=username,
-                      login_key=login_key,
-                      user_id=user_id,
-                      sentry=sentry,
-                      avatar_url=avatar_url,
-                      nickname=nickname,
-                      wallet_balance=wallet_balance,
-                      currency=currency,
-                      )
+        save_acc_info(
+            user_id=user_id,
+            username=username,
+            steam_id=steam_id,
+            login_key=login_key,
+            sentry=sentry,
+            avatar_url=avatar_url,
+            nickname=nickname,
+            wallet_balance=wallet_balance,
+            currency=currency,
+        )
 
         client.disconnect()
         return True
@@ -143,17 +144,14 @@ def auth_attempt(user_id,
     return False
 
 
-def save_acc_info(user_id, username, login_key, sentry, **kwargs):
+def save_acc_info(user_id, username, **kwargs):
     """Добавляем подключенный аккаунт Steam в БД.
 
     Если аккаунт уже существует - обновляем данные, которые изменились.
     """
     current_app.logger.info("Save account info function")
     # Создаем список переменных переданных функции
-    attributes = {
-        "login_key": login_key,
-        "sentry": sentry,
-    }
+    attributes = {}
     for key, value in kwargs.items():
         attributes[key] = value
 

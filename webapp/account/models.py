@@ -19,5 +19,5 @@ class Account(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
     def __repr__(self):
-        """Определяем формат вывода объекта класса Worker."""
+        """Определяем формат вывода объекта класса Account."""
         return f"Account {self.username}."

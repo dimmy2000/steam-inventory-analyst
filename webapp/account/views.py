@@ -76,7 +76,8 @@ def account(steam_login):
         update_acc_info(steam_acc)
 
     template_path = os.path.join('account', 'account.html')
-    return render_template(template_path, title=title, user=user)
+    return render_template(template_path, title=title, user=user,
+                           account=steam_acc)
 
 
 @blueprint.route('/<steam_login>/trade_history')
@@ -101,7 +102,8 @@ def item_description(steam_login, item_id):
 @login_required
 def remove_account(steam_login):
     """Отключение аккаунта Steam и удаление записи из БД."""
-    fetch_account = db.session.query(Account).filter_by(username=steam_login).first_or_404()
+    fetch_account = db.session.query(Account).filter_by(
+        username=steam_login).first_or_404()
     db.session.delete(fetch_account)
     db.session.commit()
     flash(f'Аккаунт {steam_login} отключен.', 'danger')
