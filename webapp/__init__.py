@@ -19,6 +19,7 @@ from webapp.account.views import blueprint as worker_blueprint
 from webapp.config import Config
 from webapp.db import db
 from webapp.flask_logs import LogSetup
+from webapp.item.models import Description, Item
 from webapp.user.models import User
 from webapp.user.views import blueprint as user_blueprint
 
