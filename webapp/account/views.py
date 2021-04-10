@@ -1,5 +1,6 @@
 """Реализация разделов сайта для работы с аккаунтами Steam."""
 import os
+import time
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -8,6 +9,7 @@ from webapp.account.forms import SteamLoginForm
 from webapp.account.models import Account
 from webapp.account.utils import auth_attempt, update_acc_info
 from webapp.db import db
+from webapp.item.utils import get_inventory_contents, update_inventory_contents
 from webapp.user.models import User
 
 blueprint = Blueprint('account', __name__,
@@ -69,15 +71,19 @@ def account(steam_login):
     user = db.session.query(User).filter_by(
         username=current_user.username).first()
 
-    steam_acc = db.session.query(Account).filter_by(
+    db_steam_acc = db.session.query(Account).filter_by(
         username=steam_login).first()
 
-    if steam_acc:
-        update_acc_info(steam_acc)
+    if db_steam_acc:
+        update_acc_info(db_steam_acc)
+        items = get_inventory_contents(db_steam_acc)
+        update_inventory_contents(db_steam_acc)
+    else:
+        items = None
 
     template_path = os.path.join('account', 'account.html')
     return render_template(template_path, title=title, user=user,
-                           account=steam_acc)
+                           account=db_steam_acc, items=items)
 
 
 @blueprint.route('/<steam_login>/trade_history')
@@ -86,15 +92,6 @@ def trade_history(steam_login):
     """Информация об истории торговли подключенного аккаунта Steam."""
     title = f'История торговли {steam_login}'
     template_path = os.path.join('account', 'trade_history.html')
-    return render_template(template_path, title=title)
-
-
-@blueprint.route('/<steam_login>/items/<item_id>')
-@login_required
-def item_description(steam_login, item_id):
-    """Описание предмета из коллекции Steam."""
-    title = 'title'
-    template_path = os.path.join('account', 'item.html')
     return render_template(template_path, title=title)
 
 

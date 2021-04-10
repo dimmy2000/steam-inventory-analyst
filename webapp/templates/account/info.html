@@ -5,8 +5,7 @@
                 <tr>
                     <td class="border"><img src="{{ account.avatar_url }}" alt="avatar" width="128px" height="128px"></td>
                     <td class="px-5">
-                        {% set steam_login = request.path.split('/accounts/')[1] %}
-                        <h2>Аккаунт: {{ steam_login }}</h2>
+                        <h2>Аккаунт: {{ account.username }}</h2>
                     </td>
                 </tr>
             </table>

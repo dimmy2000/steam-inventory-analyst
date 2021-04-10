@@ -7,7 +7,8 @@ class Item(db.Model):
 
     __tablename__ = "items"
 
-    asset_id = db.Column(db.BigInteger, primary_key=True)
+    item_id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.BigInteger, index=True)
     class_id = db.Column(db.Integer, db.ForeignKey('descriptions.class_id'))
     account_id = db.Column(db.Integer, db.ForeignKey('accounts.account_id'))
 
@@ -27,7 +28,10 @@ class Description(db.Model):
     market_hash_name = db.Column(db.String)
     item_type = db.Column(db.String)
     value = db.Column(db.String)
-    tags = db.Column(db.String)
+    rarity_tag = db.Column(db.String)
+    game_tag = db.Column(db.String)
+    item_type_tag = db.Column(db.String)
+    card_border_tag = db.Column(db.String)
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Description."""

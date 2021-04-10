@@ -8,18 +8,18 @@ import gevent
 from gevent import monkey  # noqa: F401
 gevent.monkey.patch_all()
 
-import os # noqa: E402, I100
 from datetime import datetime
 
-from flask import Flask, redirect, url_for, current_app
+from flask import Flask, redirect, url_for
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 
 from webapp.account.views import blueprint as worker_blueprint
 from webapp.config import Config
 from webapp.db import db
-from webapp.flask_logs import LogSetup
+from webapp.extensions.flask_logs import LogSetup
 from webapp.item.models import Description, Item
+from webapp.item.views import blueprint as item_blueprint
 from webapp.user.models import User
 from webapp.user.views import blueprint as user_blueprint
 
@@ -66,9 +66,10 @@ def register_extensions(app):
 def register_blueprints(app):
     app.register_blueprint(user_blueprint)
     app.register_blueprint(worker_blueprint)
+    app.register_blueprint(item_blueprint)
     return None
 
 
 if __name__ == '__main__':
     flask_app = create_app()
-    flask_app.run(debug=True)
+    flask_app.run()
