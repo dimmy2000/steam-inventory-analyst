@@ -1,4 +1,6 @@
 """Модель таблиц связанных с отображением предметов сообщества Steam."""
+from sqlalchemy.orm import relationship
+
 from webapp.db import db
 
 
@@ -11,6 +13,7 @@ class Item(db.Model):
     asset_id = db.Column(db.BigInteger, index=True)
     class_id = db.Column(db.Integer, db.ForeignKey('descriptions.class_id'))
     account_id = db.Column(db.Integer, db.ForeignKey('accounts.account_id'))
+    descriptions = relationship("Description", lazy="joined")
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Item."""
@@ -26,6 +29,7 @@ class Description(db.Model):
     app_id = db.Column(db.SmallInteger)
     icon_url_large = db.Column(db.String)
     market_hash_name = db.Column(db.String)
+    market_name = db.Column(db.String)
     item_type = db.Column(db.String)
     value = db.Column(db.String)
     rarity_tag = db.Column(db.String)

@@ -1,6 +1,4 @@
 """Внешние утилиты для работы с предметами сообщества Steam."""
-import json
-
 from flask import current_app, flash
 from steam.enums import EResult
 
@@ -11,7 +9,19 @@ from webapp.item.models import Description, Item
 
 def get_inventory_contents(db_steam_acc):
     """Загружаем список предметов для выбранного аккаунта из базы."""
-    pass
+    current_app.logger.info("Get inventory contents function")
+    items = {}
+    if db_steam_acc.items:
+        for item in db_steam_acc.items:
+            if item.descriptions:
+                items[item.asset_id] = {}
+                for key, value in item.__dict__.items():
+                    items[item.asset_id][key] = value
+                for key, value in item.descriptions.__dict__.items():
+                    items[item.asset_id][key] = value
+        print(items)
+        return items
+    return None
 
 
 def update_inventory_contents(db_steam_acc):
@@ -66,12 +76,16 @@ def update_inventory_contents(db_steam_acc):
                 current_app.logger.info(f"delete {item.asset_id}")
                 db.session.delete(item)
 
+        # Добавляем в БД описания предметов, которых там нет
         current_app.logger.info("write descriptions")
         tags = {}
+        # Наличие описания в БД проверяется по уникальному ключу classid
         for class_id in descriptions:
             exists = db.session.query(Description).filter_by(
-                class_id=class_id).first() is not None
-            current_app.logger.info(f"{descriptions[class_id]['classid']} exist {exists}")
+                class_id=int(descriptions[class_id][
+                    'classid'])).first() is not None
+            current_app.logger.info(f"{descriptions[class_id]['classid']} "
+                                    f"exist {exists}")
             if not exists:
                 # Перечень тэгов для записи в БД
                 categories = [
@@ -80,22 +94,25 @@ def update_inventory_contents(db_steam_acc):
                     "Оформление карточки",
                     "Тип предмета",
                 ]
-                # Собираем тэги в отдельный словарь для удобства
-                key = descriptions[class_id]["classid"]
-                tags[key] = {}
-                for category in categories:
-                    for tag in descriptions[class_id]['tags']:
-                        if tag['category_name'] == category:
-                            tags[key][category] = tag['name']
 
-                classid = descriptions[class_id]["classid"]
-                appid = descriptions[class_id]["appid"]
+                classid = int(descriptions[class_id]["classid"])
+                appid = int(descriptions[class_id]["appid"])
                 icon_url_large = descriptions[class_id][
                     "icon_url_large"]
                 market_hash_name = descriptions[class_id][
                     "market_hash_name"]
+                market_name = descriptions[class_id][
+                    "market_name"]
                 type_ = descriptions[class_id]["type"]
                 value = descriptions[class_id]["descriptions"][0]["value"]
+
+                # Собираем тэги в отдельный словарь для удобства
+                tags[classid] = {}
+                for category in categories:
+                    for tag in descriptions[class_id]['tags']:
+                        if tag['category_name'] == category:
+                            tags[classid][category] = tag['name']
+
                 rarity = tags[classid]["Редкость"]
                 game = tags[classid]["Игра"]
                 item_type = tags[classid]["Тип предмета"]
@@ -107,6 +124,7 @@ def update_inventory_contents(db_steam_acc):
                     app_id=appid,
                     icon_url_large=icon_url_large,
                     market_hash_name=market_hash_name,
+                    market_name=market_name,
                     item_type=type_,
                     value=value,
                     rarity_tag=rarity,

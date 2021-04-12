@@ -1,4 +1,6 @@
 """Модель таблицы авторизованных аккаунтов."""
+from sqlalchemy.orm import relationship
+
 from webapp.db import db
 
 
@@ -17,6 +19,7 @@ class Account(db.Model):
     wallet_balance = db.Column(db.Integer)
     currency = db.Column(db.String(3))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    items = relationship("Item", lazy="joined")
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Account."""
