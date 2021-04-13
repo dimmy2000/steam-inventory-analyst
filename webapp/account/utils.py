@@ -3,7 +3,7 @@ from flask import current_app, flash, redirect, url_for
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
 from steam.enums import EResult
 
-from webapp.account.models import Account
+from tasks import save_acc_info
 from webapp.db import db
 from webapp.extensions.steam_client import SteamLogin
 
@@ -49,7 +49,7 @@ def auth_attempt(user_id,
 
         client.logout()
 
-        save_acc_info(
+        save_acc_info.delay(
             user_id=user_id,
             username=username,
             steam_id=steam_id,
@@ -80,47 +80,6 @@ def auth_attempt(user_id,
 
     client.disconnect()
     return False
-
-
-def save_acc_info(user_id, username, **kwargs):
-    """Добавляем подключенный аккаунт Steam в БД.
-
-    Если аккаунт уже существует - обновляем данные, которые изменились.
-    """
-    current_app.logger.info("Save account info function")
-    # Создаем список переменных переданных функции
-    attributes = {}
-    for key, value in kwargs.items():
-        attributes[key] = value
-
-    db_steam_acc = db.session.query(Account).filter_by(
-        username=username).first()
-
-    if db_steam_acc:
-        current_app.logger.info(f"Account {username} already exists. "
-                                f"Trying to update data.")
-        for attribute, value in attributes.items():
-            # Если содержимое ячейки изменилось - перезаписываем его
-            if value is not None:
-                if getattr(db_steam_acc, attribute) != value:
-                    current_app.logger.info(
-                        f"Old account {attribute} is: "
-                        f"{getattr(db_steam_acc, attribute)}")
-                    setattr(db_steam_acc, attribute, value)
-                    current_app.logger.info(
-                        f"New account {attribute} is: "
-                        f"{getattr(db_steam_acc, attribute)}")
-    else:
-        current_app.logger.info("Create account %s", username)
-        db_steam_acc = Account(
-            username=username,
-            user_id=user_id,
-        )
-        for attribute, value in attributes.items():
-            setattr(db_steam_acc, attribute, value)
-        db.session.add(db_steam_acc)
-    db.session.commit()
-    current_app.logger.info("Successful DB injection")
 
 
 def update_acc_info(db_steam_acc):
