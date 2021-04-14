@@ -19,8 +19,10 @@ def login():
     """Авторизация пользователя."""
     title = 'Авторизация'
     if current_user.is_authenticated:
-        return redirect(url_for('user.profile',
-                                username=current_user.username))
+        return redirect(url_for(
+            'user.profile',
+            username=current_user.username,
+        ))
     form = LoginForm()
     if form.validate_on_submit():
         user = db.session.query(User).filter_by(username=form.username.data).first()
@@ -34,7 +36,11 @@ def login():
                                 username=form.username.data)
         return redirect(next_page)
     template_path = os.path.join('user', 'login.html')
-    return render_template(template_path, title=title, form=form)
+    return render_template(
+        template_path,
+        title=title,
+        form=form,
+    )
 
 
 @blueprint.route('/logout')
@@ -59,7 +65,11 @@ def register():
         flash('You are now a registered user!', 'success')
         return redirect(url_for('user.login'))
     template_path = os.path.join('user', 'register.html')
-    return render_template(template_path, title=title, form=form)
+    return render_template(
+        template_path,
+        title=title,
+        form=form,
+    )
 
 
 @blueprint.route('/<username>')
@@ -67,6 +77,10 @@ def register():
 def profile(username):
     """Профиль зарегистрированного пользователя"""
     user = db.session.query(User).filter_by(username=username).first_or_404()
-    accounts = db.session.query(Account).filter_by(user_id=user.user_id)
+    accounts = user.accounts.all()
     template_path = os.path.join('user', 'profile.html')
-    return render_template(template_path, user=user, accounts=accounts)
+    return render_template(
+        template_path,
+        user=user,
+        accounts=accounts,
+    )

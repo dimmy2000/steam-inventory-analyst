@@ -19,8 +19,8 @@ class Account(db.Model):
     wallet_balance = db.Column(db.Integer)
     currency = db.Column(db.String(3))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    items = relationship("Item", lazy="joined")
-    hashes = relationship("Hash", lazy="joined")
+    items = relationship("Item", lazy="dynamic")
+    hashes = relationship("Hash", lazy="dynamic")
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Account."""

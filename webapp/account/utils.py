@@ -8,11 +8,13 @@ from webapp.db import db
 from webapp.extensions.steam_client import SteamLogin
 
 
-def auth_attempt(user_id,
-                 username,
-                 password,
-                 auth_code=None,
-                 two_factor_code=None):
+def auth_attempt(
+        user_id,
+        username,
+        password,
+        auth_code=None,
+        two_factor_code=None,
+):
     """Авторизация на серверах Steam.
 
     По полученным учетным данным делаем попытку авторизации с помощью
@@ -25,10 +27,12 @@ def auth_attempt(user_id,
     current_app.logger.info("Auth attempt function")
     client = SteamLogin()
 
-    login_result = client.login(username=username,
-                                password=password,
-                                auth_code=auth_code,
-                                two_factor_code=two_factor_code)
+    login_result = client.login(
+        username=username,
+        password=password,
+        auth_code=auth_code,
+        two_factor_code=two_factor_code,
+    )
 
     # Выводим сообщение с результатом авторизации в лог
     current_app.logger.info(f"Login result: {login_result}")
@@ -87,8 +91,10 @@ def update_acc_info(db_steam_acc):
     current_app.logger.info("Update account info function")
     client = SteamLogin()
 
-    login_result = client.login(username=db_steam_acc.username,
-                                login_key=db_steam_acc.login_key)
+    login_result = client.login(
+        username=db_steam_acc.username,
+        login_key=db_steam_acc.login_key,
+    )
 
     # Создаем сообщение с результатом авторизации для вывода в лог
     current_app.logger.info(f"Login result: {login_result}")

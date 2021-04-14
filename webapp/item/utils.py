@@ -19,7 +19,6 @@ def get_inventory_contents(db_steam_acc):
                     items[item.asset_id][key] = value
                 for key, value in item.descriptions.__dict__.items():
                     items[item.asset_id][key] = value
-        print(items)
         return items
     return None
 
