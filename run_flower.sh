@@ -1,0 +1,1 @@
+flower -A celery_worker.celery
