@@ -1,1 +1,1 @@
-set FORKED_BY_MULTIPROCESSING=1 && celery -A celery_worker.celery worker --loglevel=info --pool=solo
+set FORKED_BY_MULTIPROCESSING=1 && celery -A celery_worker.celery worker --loglevel=info

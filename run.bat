@@ -1,1 +1,0 @@
-set FLASK_APP=webapp.factory && set FLASK_DEBUG=1 && flask run
