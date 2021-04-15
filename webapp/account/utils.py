@@ -1,10 +1,8 @@
 """Внешние утилиты для работы с подключенными аккаунтами."""
 from flask import current_app, flash, redirect, url_for
-from sqlalchemy.exc import DBAPIError, SQLAlchemyError
 from steam.enums import EResult
 
 from tasks import save_acc_info
-from webapp.db import db
 from webapp.extensions.steam_client import SteamLogin
 
 
@@ -102,25 +100,23 @@ def update_acc_info(db_steam_acc):
     if login_result == EResult.OK:
         current_app.logger.info(f"Logged on as: {client.user.name}")
         # Получаем данные об аккаунте
+        user_id = db_steam_acc.user_id
+        username = db_steam_acc.username
         avatar_url = client.user.get_avatar_url(2)
         nickname = client.user.name
         wallet_balance = client.wallet_balance
         currency = client.currency
-        sentry = client.sentry
         client.logout()
-        # Пишем полученные данные в базу
-        db_steam_acc.avatar_url = avatar_url
-        db_steam_acc.nickname = nickname
-        db_steam_acc.wallet_balance = wallet_balance
-        db_steam_acc.currency = currency
-        if db_steam_acc.sentry is None:
-            db_steam_acc.sentry = sentry
 
-        try:
-            db.session.add(db_steam_acc)
-            db.session.commit()
-        except (DBAPIError, SQLAlchemyError) as err:
-            current_app.logger.info(err)
+        # Пишем полученные данные в базу
+        save_acc_info.delay(
+            user_id=user_id,
+            username=username,
+            avatar_url=avatar_url,
+            nickname=nickname,
+            wallet_balance=wallet_balance,
+            currency=currency,
+        )
     else:
         flash(f'Сессия {db_steam_acc.username} истекла. Нужна повторная '
               f'авторизация', 'light')

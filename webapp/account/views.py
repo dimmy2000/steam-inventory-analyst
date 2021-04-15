@@ -8,7 +8,6 @@ from webapp.account.forms import SteamLoginForm
 from webapp.account.utils import auth_attempt, update_acc_info
 from webapp.db import db
 from webapp.item.utils import get_inventory_contents, update_inventory_contents
-from webapp.user.models import User
 
 blueprint = Blueprint('account', __name__,
                       url_prefix='/accounts')
@@ -20,8 +19,7 @@ def make_session():
     """Подключение для пользователя нового аккаунта Steam."""
     title = 'Подключение аккаунта Steam'
     form = SteamLoginForm()
-    user = db.session.query(User).filter_by(
-        username=current_user.username).first()
+    user = current_user
     accounts = user.accounts.all()
 
     # Если есть атрибут login - вставляем его в поле username шаблона
@@ -51,7 +49,7 @@ def make_session():
         if try_login:
             return redirect(url_for(
                 'user.profile',
-                username=current_user.username,
+                username=user.username,
             ))
         else:
             flash('Неудачная попытка авторизации', 'warning')
@@ -72,9 +70,7 @@ def make_session():
 def account(steam_login):
     """Информация о подключенном аккаунте Steam."""
     title = f'Аккаунт {steam_login}'
-
-    user = db.session.query(User).filter_by(
-        username=current_user.username).first()
+    user = current_user
     db_steam_acc = user.accounts.filter_by(username=steam_login).first()
 
     if db_steam_acc:
@@ -110,8 +106,7 @@ def trade_history(steam_login):
 @login_required
 def remove_account(steam_login):
     """Отключение аккаунта Steam и удаление записи из БД."""
-    user = db.session.query(User).filter_by(
-        username=current_user.username).first()
+    user = current_user
     accounts = user.accounts.all()
     fetch_account = user.accounts.filter_by(username=steam_login).first_or_404()
     db.session.delete(fetch_account)
@@ -120,6 +115,6 @@ def remove_account(steam_login):
     template_path = os.path.join('user', 'profile.html')
     return render_template(
         template_path,
-        user=current_user,
+        user=user,
         accounts=accounts
     )

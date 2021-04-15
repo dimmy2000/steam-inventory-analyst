@@ -1,5 +1,6 @@
 """Docstring which is missing."""
 from flask import current_app
+from sqlalchemy.exc import DBAPIError, SQLAlchemyError
 
 from webapp import celery
 
@@ -7,7 +8,7 @@ from webapp.account.models import Account
 from webapp.db import db
 
 
-@celery.task(serializer="msgpack")
+@celery.task(serializer="msgpack", name="account.save.info")
 def save_acc_info(user_id, username, **kwargs):
     """Добавляем подключенный аккаунт Steam в БД.
 
@@ -44,6 +45,10 @@ def save_acc_info(user_id, username, **kwargs):
         )
         for arg, value in args.items():
             setattr(db_steam_acc, arg, value)
-        db.session.add(db_steam_acc)
+        try:
+            db.session.add(db_steam_acc)
+        except (DBAPIError, SQLAlchemyError) as err:
+            current_app.logger.info(err)
     db.session.commit()
     current_app.logger.info("Successful DB injection")
+    return None

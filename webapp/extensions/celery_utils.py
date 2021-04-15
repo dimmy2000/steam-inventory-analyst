@@ -1,13 +1,14 @@
 """Функции для работы с Celery."""
+from webapp.config import Config
 
 
 def init_celery(celery, app):
     """Подключение экземпляра Celery к flask-приложению."""
-    celery.config_from_object('webapp.config')
-    task_base = celery.Task
+    celery.config_from_object(Config)
+    TaskBase = celery.Task
 
-    class ContextTask(task_base):
+    class ContextTask(TaskBase):
         def __call__(self, *args, **kwargs):
             with app.app_context():
-                return task_base.__call__(self, *args, **kwargs)
+                return TaskBase.__call__(self, *args, **kwargs)
     celery.Task = ContextTask

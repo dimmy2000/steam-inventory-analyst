@@ -6,11 +6,6 @@ from dotenv import load_dotenv
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv()
 
-# Celery configuration
-worker_hijack_root_logger = False
-accept_content = ["msgpack"]
-broker_url = "redis://localhost:6379"
-result_backend = "redis://localhost:6379"
 
 class Config(object):
     """Хранение переменных для настройки компонентов приложения."""
@@ -26,3 +21,8 @@ class Config(object):
     LOG_DIR = os.environ.get("LOG_DIR") or "./"
     APP_LOG_NAME = os.environ.get("APP_LOG_NAME") or "app.log"
     WWW_LOG_NAME = os.environ.get("WWW_LOG_NAME") or "www.log"
+    # Celery configuration
+    worker_hijack_root_logger = False
+    accept_content = ["msgpack", "json"]
+    broker_url = "redis://localhost:6379"
+    result_backend = "redis://localhost:6379"
