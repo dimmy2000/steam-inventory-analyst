@@ -3,13 +3,12 @@ import os
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from tasks import update_acc_info
 
 from webapp.account.forms import SteamLoginForm
 from webapp.account.schemas import account_schema
-from webapp.account.utils import auth_attempt
+from webapp.account.utils import auth_attempt, load_inventory_contents, \
+    update_inventory_contents, update_acc_info
 from webapp.db import db
-from webapp.item.utils import get_inventory_contents, update_inventory_contents
 from webapp.user.models import User
 
 blueprint = Blueprint('account', __name__,
@@ -82,10 +81,9 @@ def account(steam_login):
     db_steam_acc = user.accounts.filter_by(username=steam_login).first()
 
     if db_steam_acc:
-        update_acc_info.delay(account_schema.dump(db_steam_acc))
-        items = None
-        # items = get_inventory_contents(db_steam_acc)
-        # update_inventory_contents(db_steam_acc)
+        update_acc_info(db_steam_acc)
+        items = load_inventory_contents(db_steam_acc)
+        update_inventory_contents(db_steam_acc)
     else:
         items = None
 

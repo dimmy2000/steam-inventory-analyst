@@ -1,13 +1,12 @@
-"""Docstring which is missing."""
-from flask import current_app, flash
+"""Асинхронные задачи Celery."""
+from flask import current_app
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
-from steam.enums import EResult
 
 from webapp import celery
 from webapp.account.models import Account
 from webapp.account.schemas import account_schema
 from webapp.db import db
-from webapp.extensions.steam_client import SteamLogin
+from webapp.item.models import Description, Item
 
 
 @celery.task(name="account.save_info")
@@ -21,8 +20,8 @@ def save_acc_info(user_id, username, **kwargs):
     args = {}
     for key, value in kwargs.items():
         args[key] = value
-    db_steam_acc = db.session.query(Account).filter_by(
-        username=username, user_id=user_id).first()
+    db_steam_acc = Account.query.filter_by(username=username,
+                                           user_id=user_id).first()
 
     if db_steam_acc:
         current_app.logger.info(f"Account {username} already exists. "
@@ -55,43 +54,96 @@ def save_acc_info(user_id, username, **kwargs):
     return None
 
 
-@celery.task(name="account.update_info")
-def update_acc_info(db_steam_acc):
-    """Обновляем информацию об аккаунте в таблице."""
-    current_app.logger.info("Update account info function")
+@celery.task(name="account.save_items")
+def save_items(db_acc_json, items):
+    """Пишем в БД перечень имеющихся предметов в инвентаре."""
+    current_app.logger.info("write items")
+
     # Преобразуем полученный словарь обратно в модель sqlalchemy
-    db_steam_acc = account_schema.load(db_steam_acc)
+    db_steam_acc = account_schema.load(db_acc_json)
 
-    client = SteamLogin()
+    account_id = db_steam_acc.account_id
+    db_inventory = Item.query.filter_by(account_id=account_id).all()
 
-    login_result = client.login(
-        username=db_steam_acc.username,
-        login_key=db_steam_acc.login_key,
-    )
+    # Сохраняем данные о предметах в инвентаре в БД
+    for item in items:
+        exists = Item.query.filter_by(asset_id=item).first() is not None
+        current_app.logger.info(f'{item} exist {exists}')
+        if not exists:
+            db_item = Item(
+                asset_id=int(item),
+                class_id=int(items[item]['classid']),
+                account_id=account_id,
+            )
+            db.session.add(db_item)
 
-    # Создаем сообщение с результатом авторизации для вывода в лог
-    current_app.logger.info(f"Login result: {login_result}")
+    current_app.logger.info("delete stale items")
+    # Если в БД есть предмет, которого нет в инвентаре - удаляем
+    for item in db_inventory:
+        if str(item.asset_id) not in items:
+            current_app.logger.info(f"delete {item.asset_id}")
+            db.session.delete(item)
+    db.session.commit()
 
-    if login_result == EResult.OK:
-        current_app.logger.info(f"Logged on as: {client.user.name}")
-        # Получаем данные об аккаунте
-        user_id = db_steam_acc.user_id
-        username = db_steam_acc.username
-        avatar_url = client.user.get_avatar_url(2)
-        nickname = client.user.name
-        wallet_balance = client.wallet_balance
-        currency = client.currency
-        client.logout()
 
-        # Пишем полученные данные в базу
-        save_acc_info.delay(
-            user_id=user_id,
-            username=username,
-            avatar_url=avatar_url,
-            nickname=nickname,
-            wallet_balance=wallet_balance,
-            currency=currency,
-        )
-    else:
-        flash(f'Сессия {db_steam_acc.username} истекла. Нужна повторная '
-              f'авторизация', 'light')
+@celery.task(name="account.save_descriptions")
+def save_descriptions(descriptions):
+    """Добавляем в БД описания предметов, которых там нет."""
+    current_app.logger.info("write descriptions")
+
+    tags = {}
+    # Наличие описания в БД проверяется по уникальному ключу classid
+    for class_id in descriptions:
+        exists = Description.query.filter_by(
+            class_id=int(descriptions[class_id][
+                         'classid'])).first() is not None
+        current_app.logger.info(f"{descriptions[class_id]['classid']} "
+                                f"exist {exists}")
+        if not exists:
+            # Перечень тэгов для записи в БД
+            categories = [
+                "Редкость",
+                "Игра",
+                "Оформление карточки",
+                "Тип предмета",
+            ]
+
+            classid = int(descriptions[class_id]["classid"])
+            appid = int(descriptions[class_id]["appid"])
+            icon_url_large = descriptions[class_id][
+                "icon_url_large"]
+            market_hash_name = descriptions[class_id][
+                "market_hash_name"]
+            market_name = descriptions[class_id][
+                "market_name"]
+            type_ = descriptions[class_id]["type"]
+            value = descriptions[class_id]["descriptions"][0]["value"]
+
+            # Собираем тэги в отдельный словарь для удобства
+            tags[classid] = {}
+            for category in categories:
+                for tag in descriptions[class_id]['tags']:
+                    if tag['category_name'] == category:
+                        tags[classid][category] = tag['name']
+
+            rarity = tags[classid]["Редкость"]
+            game = tags[classid]["Игра"]
+            item_type = tags[classid]["Тип предмета"]
+            card_border = tags[classid]["Оформление карточки"] \
+                if "Оформление карточки" in tags[classid].keys() else None
+
+            db_description = Description(
+                class_id=classid,
+                app_id=appid,
+                icon_url_large=icon_url_large,
+                market_hash_name=market_hash_name,
+                market_name=market_name,
+                item_type=type_,
+                value=value,
+                rarity_tag=rarity,
+                game_tag=game,
+                item_type_tag=item_type,
+                card_border_tag=card_border,
+            )
+            db.session.add(db_description)
+    db.session.commit()
