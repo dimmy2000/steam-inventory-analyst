@@ -5,7 +5,12 @@ from webapp.db import db
 
 
 class Item(db.Model):
-    """Модель таблицы предметов в инвентаре Steam."""
+    """Модель таблицы предметов в инвентаре Steam.
+
+    Хранит идентификационный номер предмета в базе, идентификационный номер
+    предмета на серверах Steam, идентификационный номер описания предмета,
+    идентификационные номер аккаунта-владельца предмета.
+    """
 
     __tablename__ = "items"
 
@@ -13,7 +18,7 @@ class Item(db.Model):
     asset_id = db.Column(db.BigInteger, index=True)
     class_id = db.Column(db.Integer, db.ForeignKey('descriptions.class_id'))
     account_id = db.Column(db.Integer, db.ForeignKey('accounts.account_id'))
-    descriptions = relationship("Description", lazy="joined")
+    descriptions = relationship("Description", backref='items', lazy="joined")
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Item."""
@@ -21,7 +26,13 @@ class Item(db.Model):
 
 
 class Description(db.Model):
-    """Модель таблицы описаний предметов сообщества Steam."""
+    """Модель таблицы описаний предметов сообщества Steam.
+
+    Хранит идентификационный номер описания, идентификационный номер
+    приложения, идентификатор иконки предмета, имя предмета на торговой
+    площадке, имя предмета для вывода, тип предмета, описание предмета,
+    список тегов: редкость, игра, тип предмета, тип коллекционной карточки.
+    """
 
     __tablename__ = "descriptions"
 

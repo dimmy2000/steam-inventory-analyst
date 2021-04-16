@@ -7,9 +7,12 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.urls import url_parse
 
 from webapp.account.models import Account
+from webapp.account.schemas import AccountSchema
 from webapp.db import db
+from webapp.item.schemas import ItemSchema, DescriptionSchema
 from webapp.user.forms import LoginForm, RegistrationForm
 from webapp.user.models import User
+from webapp.user.schemas import UserSchema
 
 blueprint = Blueprint('user', __name__, url_prefix='/users')
 

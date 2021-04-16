@@ -17,10 +17,10 @@ def auth_attempt(
 
     По полученным учетным данным делаем попытку авторизации с помощью
     SteamClient(). При успешном входе пишем полученные данные о пользователе
-    в БД с помощью функции save_acc_info и возвращаем True. В случае неудачной
-    авторизации обрабатываем возможные запросы ввода дополнительных данных.
-    В случае невозможности устранения причин отказа в авторизации возвращаем
-    False.
+    в БД с помощью таска селери save_acc_info и возвращаем True. В случае
+    неудачной авторизации обрабатываем возможные запросы ввода дополнительных
+    данных. В случае невозможности устранения причин отказа в авторизации
+    возвращаем False.
     """
     current_app.logger.info("Auth attempt function")
     client = SteamLogin()
@@ -62,61 +62,26 @@ def auth_attempt(
             wallet_balance=wallet_balance,
             currency=currency,
         )
-
         return True
 
     elif login_result == EResult.InvalidPassword:
         flash('Invalid password', 'EResult')
         current_app.logger.info('Invalid password')
-        return redirect(url_for('account.make_session'))
+        return url_for('account.make_session', login=username)
 
     elif login_result in (EResult.AccountLogonDenied,
                           EResult.InvalidLoginAuthCode):
         flash("Enter email code", 'EResult')
         current_app.logger.info("Enter email code")
+        return url_for('account.make_session', login=username)
 
     elif login_result in (EResult.AccountLoginDeniedNeedTwoFactor,
                           EResult.TwoFactorCodeMismatch):
         flash('Enter 2FA-code', 'EResult')
         current_app.logger.info('Enter 2FA-code')
+        return url_for('account.make_session', login=username)
 
-    client.disconnect()
     return False
 
 
-def update_acc_info(db_steam_acc):
-    """Обновляем информацию об аккаунте в таблице."""
-    current_app.logger.info("Update account info function")
-    client = SteamLogin()
 
-    login_result = client.login(
-        username=db_steam_acc.username,
-        login_key=db_steam_acc.login_key,
-    )
-
-    # Создаем сообщение с результатом авторизации для вывода в лог
-    current_app.logger.info(f"Login result: {login_result}")
-
-    if login_result == EResult.OK:
-        current_app.logger.info(f"Logged on as: {client.user.name}")
-        # Получаем данные об аккаунте
-        user_id = db_steam_acc.user_id
-        username = db_steam_acc.username
-        avatar_url = client.user.get_avatar_url(2)
-        nickname = client.user.name
-        wallet_balance = client.wallet_balance
-        currency = client.currency
-        client.logout()
-
-        # Пишем полученные данные в базу
-        save_acc_info.delay(
-            user_id=user_id,
-            username=username,
-            avatar_url=avatar_url,
-            nickname=nickname,
-            wallet_balance=wallet_balance,
-            currency=currency,
-        )
-    else:
-        flash(f'Сессия {db_steam_acc.username} истекла. Нужна повторная '
-              f'авторизация', 'light')

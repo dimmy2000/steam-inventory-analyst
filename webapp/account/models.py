@@ -5,7 +5,14 @@ from webapp.db import db
 
 
 class Account(db.Model):
-    """Модель таблицы привязанных аккаунтов Steam."""
+    """Модель таблицы привязанных аккаунтов Steam.
+
+    Хранит идентификационный номер профиля в БД, идентификационный номер
+    профиля на сервисах Steam, логин профиля, логин-токен для входа без пароля,
+    sentry-файл для входа без 2FA-кода, ссылку на аватар профиля, никнейм
+    профиля, баланс кошелька, валюту кошелька и идентификационный номер
+    пользователя, которому принадлежит профиль.
+    """
 
     __tablename__ = "accounts"
 
@@ -19,8 +26,10 @@ class Account(db.Model):
     wallet_balance = db.Column(db.Integer)
     currency = db.Column(db.String(3))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    items = relationship("Item", lazy="dynamic")
-    hashes = relationship("Hash", lazy="dynamic")
+    items = relationship("Item", cascade="all,delete", backref='accounts',
+                         lazy="dynamic")
+    hashes = relationship("Hash", cascade="all,delete", backref='accounts',
+                          lazy="dynamic")
 
     def __repr__(self):
         """Определяем формат вывода объекта класса Account."""
@@ -28,7 +37,13 @@ class Account(db.Model):
 
 
 class Hash(db.Model):
-    """Модель таблицы хэшей данных об аккаунтах Steam."""
+    """Модель таблицы хэшей данных об аккаунтах Steam.
+
+    Хранит идентификационный номер хэша, хэш информации об аккаунте, дату и
+    время последнего обновления аккаунта, хэш информации об инвентаре аккаунта,
+    дату и время последнего обновления инвентаря аккаунта, идентификационный
+    номер аккаунта в базе.
+    """
 
     __tablename__ = "hashes"
 

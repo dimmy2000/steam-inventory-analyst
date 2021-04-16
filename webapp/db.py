@@ -1,5 +1,6 @@
 """Объект для взаимодействия flask-приложения с базой данных."""
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow  # noqa: I100
 from sqlalchemy import MetaData
 
 metadata = MetaData(
@@ -13,3 +14,4 @@ metadata = MetaData(
 )
 
 db = SQLAlchemy(metadata=metadata)
+ma = Marshmallow()

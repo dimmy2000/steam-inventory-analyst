@@ -24,5 +24,6 @@ class Config(object):
     # Celery configuration
     worker_hijack_root_logger = False
     accept_content = ["msgpack", "json"]
-    broker_url = "redis://localhost:6379"
-    result_backend = "redis://localhost:6379"
+    broker_url = "redis://localhost:6379/0"
+    result_backend = "redis://localhost:6379/1"
+    task_serializer = "msgpack"

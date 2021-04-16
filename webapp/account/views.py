@@ -3,11 +3,14 @@ import os
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from tasks import update_acc_info
 
 from webapp.account.forms import SteamLoginForm
-from webapp.account.utils import auth_attempt, update_acc_info
+from webapp.account.schemas import account_schema
+from webapp.account.utils import auth_attempt
 from webapp.db import db
 from webapp.item.utils import get_inventory_contents, update_inventory_contents
+from webapp.user.models import User
 
 blueprint = Blueprint('account', __name__,
                       url_prefix='/accounts')
@@ -47,10 +50,15 @@ def make_session():
             two_factor_code=two_factor_code,
         )
         if try_login:
-            return redirect(url_for(
-                'user.profile',
-                username=user.username,
-            ))
+            # Обновляем сессию пользователя после коммита
+            user = db.session.query(User).filter_by(user_id=user_id).first()
+            if type(try_login) == str:
+                return redirect(try_login)
+            else:
+                return redirect(url_for(
+                    'user.profile',
+                    username=user.username,
+                ))
         else:
             flash('Неудачная попытка авторизации', 'warning')
 
@@ -62,7 +70,7 @@ def make_session():
         form=form,
         user=user,
         accounts=accounts,
-        )
+    )
 
 
 @blueprint.route('/<steam_login>')
@@ -74,9 +82,10 @@ def account(steam_login):
     db_steam_acc = user.accounts.filter_by(username=steam_login).first()
 
     if db_steam_acc:
-        update_acc_info(db_steam_acc)
-        items = get_inventory_contents(db_steam_acc)
-        update_inventory_contents(db_steam_acc)
+        update_acc_info.delay(account_schema.dump(db_steam_acc))
+        items = None
+        # items = get_inventory_contents(db_steam_acc)
+        # update_inventory_contents(db_steam_acc)
     else:
         items = None
 
@@ -98,7 +107,7 @@ def trade_history(steam_login):
     template_path = os.path.join('account', 'trade_history.html')
     return render_template(
         template_path,
-        title=title
+        title=title,
     )
 
 
@@ -108,7 +117,8 @@ def remove_account(steam_login):
     """Отключение аккаунта Steam и удаление записи из БД."""
     user = current_user
     accounts = user.accounts.all()
-    fetch_account = user.accounts.filter_by(username=steam_login).first_or_404()
+    fetch_account = user.accounts.filter_by(
+        username=steam_login).first_or_404()
     db.session.delete(fetch_account)
     db.session.commit()
     flash(f'Аккаунт {steam_login} отключен.', 'danger')
@@ -116,5 +126,5 @@ def remove_account(steam_login):
     return render_template(
         template_path,
         user=user,
-        accounts=accounts
+        accounts=accounts,
     )

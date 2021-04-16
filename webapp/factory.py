@@ -13,7 +13,7 @@ from flask_migrate import Migrate
 
 from webapp.account.views import blueprint as worker_blueprint
 from webapp.config import Config
-from webapp.db import db
+from webapp.db import db, ma
 from webapp.extensions.celery_utils import init_celery
 from webapp.extensions.flask_logs import LogSetup
 from webapp.item.views import blueprint as item_blueprint
@@ -32,6 +32,7 @@ def create_app(app_name=PKG_NAME, **kwargs):
         init_celery(kwargs.get("celery"), app)
 
     db.init_app(app)
+    ma.init_app(app)
     migrate = Migrate(app, db)  # noqa: F841
 
     login_manager = LoginManager()
