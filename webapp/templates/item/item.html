@@ -3,12 +3,10 @@
     {% include "account/info.html" %}
     <div class="my-2" id="main_body">
         <div class="d-flex align-items-center justify-content-center py-3 p-1">
-            <div class="m-1" style="background-color: white; position: relative; width: 100%; height: 500px">
-                <canvas id="chart1" width="3" height="2"></canvas>
-            </div>
-            <div class="m-1" style="background-color: white; position: relative; width: 100%; height: 500px">
-                <canvas id="chart2" width="3" height="2"></canvas>
-            </div>
+            {% if description %}
+            <div><img src="https://community.akamai.steamstatic.com/economy/image/{{ description.icon_url_large }}/256fx256f" alt="item icon"><br></div>
+            <div class=""><h1>{{ description.market_name }}</h1><br>{{ description.value }}</div>
+            {% endif %}
         </div>
     </div>
 <script>

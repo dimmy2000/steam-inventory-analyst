@@ -126,7 +126,7 @@ def update_acc_info(db_steam_acc):
 
 def load_inventory_contents(db_steam_acc):
     """Загружаем список предметов для выбранного аккаунта из базы."""
-    current_app.logger.info("Get inventory contents function")
+    current_app.logger.info("Load inventory contents function")
     items = {}
     if db_steam_acc.items:
         for item in db_steam_acc.items:

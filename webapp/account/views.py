@@ -1,13 +1,15 @@
 """Реализация разделов сайта для работы с аккаунтами Steam."""
+import datetime
 import os
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import desc
 
 from webapp.account.forms import SteamLoginForm
-from webapp.account.schemas import account_schema
+from webapp.account.models import Hash
 from webapp.account.utils import auth_attempt, load_inventory_contents, \
-    update_inventory_contents, update_acc_info
+    update_acc_info, update_inventory_contents
 from webapp.db import db
 from webapp.user.models import User
 
@@ -81,8 +83,25 @@ def account(steam_login):
     db_steam_acc = user.accounts.filter_by(username=steam_login).first()
 
     if db_steam_acc:
-        update_acc_info(db_steam_acc)
+        db_hash = Hash.query.filter_by(
+            account_id=db_steam_acc.account_id).order_by(desc(
+                Hash.hash_id)).first()
+
+        timestamp = datetime.datetime.utcnow()
+        # Обновление аккаунта раз в 10 мин
+        acc_update_period = 600
+        # Обновление инвентаря аккаунта раз в 5 мин
+        inv_update_period = 300
+
+        if db_hash:
+            acc_upd_since = db_hash.account_last_updated
+            inv_upd_since = db_hash.inventory_last_updated
+        else:
+            acc_upd_since = timestamp - datetime.timedelta(days=1)
+            inv_upd_since = timestamp - datetime.timedelta(days=1)
+
         items = load_inventory_contents(db_steam_acc)
+        update_acc_info(db_steam_acc)
         update_inventory_contents(db_steam_acc)
     else:
         items = None

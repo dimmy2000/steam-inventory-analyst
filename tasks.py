@@ -63,11 +63,12 @@ def save_items(db_acc_json, items):
     db_steam_acc = account_schema.load(db_acc_json)
 
     account_id = db_steam_acc.account_id
-    db_inventory = Item.query.filter_by(account_id=account_id).all()
+    db_inventory = db_steam_acc.items.all()
 
     # Сохраняем данные о предметах в инвентаре в БД
     for item in items:
-        exists = Item.query.filter_by(asset_id=item).first() is not None
+        exists = db_inventory.filter_by(
+            asset_id=item, account_id=account_id).first() is not None
         current_app.logger.info(f'{item} exist {exists}')
         if not exists:
             db_item = Item(

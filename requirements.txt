@@ -75,3 +75,4 @@ wrapt==1.12.1
 WTForms==2.3.3
 zope.event==4.5.0
 zope.interface==5.2.0
+simplejson>=3.17.2
