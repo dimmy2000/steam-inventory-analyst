@@ -3,13 +3,14 @@ from datetime import datetime
 from hashlib import md5
 
 from flask_login import UserMixin
+from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from webapp.db import db
 
 
 class Mixin(UserMixin):
-    """Переопределяем метод класса для получения id."""
+    """Переопределяем метод класса `UserMixin` для получения `id`."""
 
     def get_id(self):
         """Меняем ожидаемый ярлык столбца с `id` на `user_id`."""
@@ -20,12 +21,11 @@ class Mixin(UserMixin):
                                       '`get_id`')
 
 
-class User(Mixin, db.Model):
+class User(db.Model, Mixin):
     """Модель таблицы пользователей `users`.
 
-    Включает столбцы, содержащие индивидуальный номер пользователя, имя
-    пользователя, адрес электронной почты, хэш пароля и время последнего
-    входа.
+    Хранит идентификационный номер пользователя, имя пользователя, адрес
+    электронной почты, хэш пароля и время последнего входа.
 
     """
 
@@ -36,6 +36,7 @@ class User(Mixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    accounts = relationship("Account", cascade="all,delete", backref='users', lazy="dynamic")
 
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()

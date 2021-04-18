@@ -3,16 +3,12 @@
         <div>
             <table>
                 <tr>
-                    <td class="border"><img src="https://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/f1/f1a29c3020bbf79d64e7540ad14064d4acf71889_full.jpg" alt="avatar" width="128px" height="128px"></td>
+                    <td class="border"><img src="{{ account.avatar_url }}" alt="avatar" width="128px" height="128px"></td>
                     <td class="px-5">
-                        <h2>Аккаунт: </h2>
-                        <h2 id="demo"></h2>
+                        <h2>Аккаунт: {{ account.username }}</h2>
                     </td>
                 </tr>
             </table>
         </div>
     </div>
 </div>
-<script>
-document.getElementById("demo").innerHTML = window.location.pathname;
-</script>

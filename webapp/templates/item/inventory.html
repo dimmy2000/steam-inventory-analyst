@@ -1,0 +1,29 @@
+<div class="d-flex flex-column  align-items-center justify-content-top my-1 mx-1">
+  <h4 class=""><b>Инвентарь</b></h4>
+  <table class="table table-dark table-striped table-hover">
+            <thead>
+              <tr class="">
+                  <th>Иконка</th>
+                  <th>Наименование</th>
+                  <th>Тип предмета</th>
+                  <th>Редкость</th>
+                  <th>Игра</th>
+              </tr>
+            </thead>
+            <tbody class="">
+              {% if items %}
+                {% for item, value in items.items()|sort(reverse=false, attribute="1.class_id") %}
+                  <tr class="" onclick="openUrl(document.getElementById('{{ item }}').getAttribute('data-href'))" data-href="{{ url_for('item.item_description', steam_login=account.username, item_id=item) }}" id="{{ item }}">
+                      <td><img src="https://community.akamai.steamstatic.com/economy/image/{{ items[item]['icon_url_large'] }}/32fx32f" alt="item icon"></td>
+                      <td>{{ items[item]['market_name'] }}</td>
+                      <td>{{ items[item]['item_type'] }}</td>
+                      <td>{{ items[item]['rarity_tag'] }}</td>
+                      <td>{{ items[item]['game_tag'] }}</td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+              <tr><td colspan="5">Инвентарь пуст</td></tr>
+              {% endif %}
+            </tbody>
+  </table>
+</div>

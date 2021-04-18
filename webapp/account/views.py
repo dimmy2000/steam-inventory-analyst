@@ -5,8 +5,8 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from webapp.account.forms import SteamLoginForm
-from webapp.account.models import Account
-from webapp.account.utils import auth_attempt, update_acc_info
+from webapp.account.utils import auth_attempt, load_inventory_contents, \
+    update_acc_info, update_inventory_contents
 from webapp.db import db
 from webapp.user.models import User
 
@@ -20,10 +20,8 @@ def make_session():
     """Подключение для пользователя нового аккаунта Steam."""
     title = 'Подключение аккаунта Steam'
     form = SteamLoginForm()
-    user = db.session.query(User).filter_by(
-        username=current_user.username).first()
-    accounts = db.session.query(Account).filter_by(
-        user_id=user.user_id).all()
+    user = User.query.filter_by(username=current_user.username).first()
+    accounts = user.accounts.all()
 
     # Если есть атрибут login - вставляем его в поле username шаблона
     login = request.args.get('login')
@@ -42,22 +40,35 @@ def make_session():
             two_factor_code = form.two_factor_code.data
         user_id = user.user_id
 
-        try_login = auth_attempt(user_id=user_id, username=username,
-                                 password=password, auth_code=auth_code,
-                                 two_factor_code=two_factor_code)
+        try_login = auth_attempt(
+            user_id=user_id,
+            username=username,
+            password=password,
+            auth_code=auth_code,
+            two_factor_code=two_factor_code,
+        )
         if try_login:
-            return redirect(url_for('user.profile',
-                                    username=current_user.username))
+            # Обновляем сессию пользователя после коммита
+            user = User.query.filter_by(user_id=user_id).first()
+            if type(try_login) == str:
+                return redirect(try_login)
+            else:
+                return redirect(url_for(
+                    'user.profile',
+                    username=user.username,
+                ))
         else:
             flash('Неудачная попытка авторизации', 'warning')
 
     template_path = os.path.join('account', 'make_session.html')
-    return render_template(template_path,
-                           title=title,
-                           login=login,
-                           form=form,
-                           user=user,
-                           accounts=accounts)
+    return render_template(
+        template_path,
+        title=title,
+        login=login,
+        form=form,
+        user=user,
+        accounts=accounts,
+    )
 
 
 @blueprint.route('/<steam_login>')
@@ -65,18 +76,25 @@ def make_session():
 def account(steam_login):
     """Информация о подключенном аккаунте Steam."""
     title = f'Аккаунт {steam_login}'
+    user = User.query.filter_by(username=current_user.username).first()
+    db_steam_acc = user.accounts.filter_by(username=steam_login).first()
 
-    user = db.session.query(User).filter_by(
-        username=current_user.username).first()
+    if db_steam_acc:
+        items = load_inventory_contents(db_steam_acc)
+        update_acc_info(db_steam_acc)
+        update_inventory_contents(db_steam_acc)
+    else:
+        items = None
 
-    steam_acc = db.session.query(Account).filter_by(
-        username=steam_login).first()
-
-    if steam_acc:
-        update_acc_info(steam_acc)
-
+    user = User.query.filter_by(username=current_user.username).first()
     template_path = os.path.join('account', 'account.html')
-    return render_template(template_path, title=title, user=user)
+    return render_template(
+        template_path,
+        title=title,
+        user=user,
+        account=db_steam_acc,
+        items=items,
+    )
 
 
 @blueprint.route('/<steam_login>/trade_history')
@@ -85,28 +103,26 @@ def trade_history(steam_login):
     """Информация об истории торговли подключенного аккаунта Steam."""
     title = f'История торговли {steam_login}'
     template_path = os.path.join('account', 'trade_history.html')
-    return render_template(template_path, title=title)
-
-
-@blueprint.route('/<steam_login>/items/<item_id>')
-@login_required
-def item_description(steam_login, item_id):
-    """Описание предмета из коллекции Steam."""
-    title = 'title'
-    template_path = os.path.join('account', 'item.html')
-    return render_template(template_path, title=title)
+    return render_template(
+        template_path,
+        title=title,
+    )
 
 
 @blueprint.route('/delete/<steam_login>')
 @login_required
 def remove_account(steam_login):
     """Отключение аккаунта Steam и удаление записи из БД."""
-    fetch_account = db.session.query(Account).filter_by(username=steam_login).first_or_404()
+    user = User.query.filter_by(username=current_user.username).first()
+    accounts = user.accounts.all()
+    fetch_account = user.accounts.filter_by(
+        username=steam_login).first_or_404()
     db.session.delete(fetch_account)
     db.session.commit()
     flash(f'Аккаунт {steam_login} отключен.', 'danger')
-    user = db.session.query(User).filter_by(
-        username=current_user.username).first()
-    accounts = db.session.query(Account).filter_by(user_id=user.user_id)
     template_path = os.path.join('user', 'profile.html')
-    return render_template(template_path, user=current_user, accounts=accounts)
+    return render_template(
+        template_path,
+        user=user,
+        accounts=accounts,
+    )
