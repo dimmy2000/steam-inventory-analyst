@@ -21,7 +21,7 @@ class Mixin(UserMixin):
                                       '`get_id`')
 
 
-class User(Mixin, db.Model):
+class User(db.Model, Mixin):
     """Модель таблицы пользователей `users`.
 
     Хранит идентификационный номер пользователя, имя пользователя, адрес

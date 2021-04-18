@@ -1,13 +1,10 @@
 """Реализация разделов сайта для работы с аккаунтами Steam."""
-import datetime
 import os
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import desc
 
 from webapp.account.forms import SteamLoginForm
-from webapp.account.models import Hash
 from webapp.account.utils import auth_attempt, load_inventory_contents, \
     update_acc_info, update_inventory_contents
 from webapp.db import db
@@ -23,7 +20,7 @@ def make_session():
     """Подключение для пользователя нового аккаунта Steam."""
     title = 'Подключение аккаунта Steam'
     form = SteamLoginForm()
-    user = current_user
+    user = User.query.filter_by(username=current_user.username).first()
     accounts = user.accounts.all()
 
     # Если есть атрибут login - вставляем его в поле username шаблона
@@ -52,7 +49,7 @@ def make_session():
         )
         if try_login:
             # Обновляем сессию пользователя после коммита
-            user = db.session.query(User).filter_by(user_id=user_id).first()
+            user = User.query.filter_by(user_id=user_id).first()
             if type(try_login) == str:
                 return redirect(try_login)
             else:
@@ -79,33 +76,17 @@ def make_session():
 def account(steam_login):
     """Информация о подключенном аккаунте Steam."""
     title = f'Аккаунт {steam_login}'
-    user = current_user
+    user = User.query.filter_by(username=current_user.username).first()
     db_steam_acc = user.accounts.filter_by(username=steam_login).first()
 
     if db_steam_acc:
-        db_hash = Hash.query.filter_by(
-            account_id=db_steam_acc.account_id).order_by(desc(
-                Hash.hash_id)).first()
-
-        timestamp = datetime.datetime.utcnow()
-        # Обновление аккаунта раз в 10 мин
-        acc_update_period = 600
-        # Обновление инвентаря аккаунта раз в 5 мин
-        inv_update_period = 300
-
-        if db_hash:
-            acc_upd_since = db_hash.account_last_updated
-            inv_upd_since = db_hash.inventory_last_updated
-        else:
-            acc_upd_since = timestamp - datetime.timedelta(days=1)
-            inv_upd_since = timestamp - datetime.timedelta(days=1)
-
         items = load_inventory_contents(db_steam_acc)
         update_acc_info(db_steam_acc)
         update_inventory_contents(db_steam_acc)
     else:
         items = None
 
+    user = User.query.filter_by(username=current_user.username).first()
     template_path = os.path.join('account', 'account.html')
     return render_template(
         template_path,
@@ -132,7 +113,7 @@ def trade_history(steam_login):
 @login_required
 def remove_account(steam_login):
     """Отключение аккаунта Steam и удаление записи из БД."""
-    user = current_user
+    user = User.query.filter_by(username=current_user.username).first()
     accounts = user.accounts.all()
     fetch_account = user.accounts.filter_by(
         username=steam_login).first_or_404()

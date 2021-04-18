@@ -15,8 +15,8 @@ blueprint = Blueprint('item', __name__,
 def item_description(steam_login, item_id):
     """Описание предмета из коллекции Steam."""
     title = 'title'
-    account = Account.query.filter_by(username=steam_login,
-                                      user_id=current_user.user_id).first()
+    account = Account.query.filter_by(
+        username=steam_login, user_id=current_user.user_id).first()
     item = account.items.filter_by(asset_id=item_id).first()
     description = item.descriptions
     template_path = os.path.join('item', 'item.html')
