@@ -39,3 +39,63 @@ Celery использeтся Flower.
 * [Диаграмма отношений базы данных](docs/images/db_relationship_diagram.png) 
 
 ---
+
+### Установка и настройка
+
+Выполните в консоли следующие команды:
+```
+git clone https://github.com/dimmy2000/steam-inventory-analyst.git
+cd steam-inventory-analyst/
+```
+Создайте виртуальное окружение:
+#### MacOS/Linux
+```
+python3 -m venv venv
+```
+#### Windows
+```
+py -3 -m venv venv
+```
+Активируйте виртуальное окружение и установите пакеты, необходимые для работы приложения:
+#### MacOS/Linux
+```
+. venv/bin/activate
+pip install -r requirments.txt
+```
+#### Windows
+```
+venv\Scripts\activate
+pip install -r requirments.txt
+```
+
+Настройки по умолчанию хранятся в файле `./webapp/config.py`. Если требуется внести изменения в секретные ключи - создайте файл .env и добавьте туда следующие настройки:
+```
+SECRET_KEY=ваш секретный ключ для создания сессий Flask 
+LOG_TYPE=полный или сокращенный формат сообщений ('stream'/'watched')
+LOG_LEVEL=уровень сообщений для записи в журнал
+LOG_DIR=путь к папке с файлами логов
+APP_LOG_NAME=имя файла 'stream'-логов
+WWW_LOG_NAME=имя файла 'watched'-логов
+```
+### Запуск
+Чтобы запустить приложение на локальном сервере, выполните в консоли:
+#### MacOS/Linux
+```
+python3 run.py
+```
+Во втором окне консоли выполните команды:
+```
+cd steam-inventory-analyst/
+chmod +x run_celery.sh
+. venv/bin/activate
+./run_celery.sh
+```
+В третьем окне консоли выполните команды:
+```
+cd steam-inventory-analyst/
+chmod +x run_flower.sh
+. venv/bin/activate
+./run_flower.sh
+```
+Теперь вы можете работать с сервисом по адресу [localhost:5000](localhost:5000) и отслеживать статистику выполнения
+задач Celery по адресу [localhost:5555](localhost:5555)
