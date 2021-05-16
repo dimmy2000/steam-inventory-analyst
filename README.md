@@ -1,7 +1,5 @@
 # Steam Inventory Analyst
 
-Another one nose-picking app with overloaded functionality
-
 ---
 
 ## Описание
@@ -40,7 +38,7 @@ Celery использeтся Flower.
 
 ---
 
-### Установка и настройка
+### Установка
 
 Выполните в консоли следующие команды:
 ```
@@ -59,16 +57,28 @@ py -3 -m venv venv
 Активируйте виртуальное окружение и установите пакеты, необходимые для работы приложения:
 #### MacOS/Linux
 ```
-. venv/bin/activate
+source venv/bin/activate
 pip install -r requirments.txt
 ```
 #### Windows
 ```
-venv\Scripts\activate
+venv\Scripts\activate.bat
 pip install -r requirments.txt
 ```
+Также, в качестве брокера задач Celery, необходимо установить Redis
+#### Linux
+Установите пакет redis-server ```apt-get install redis-server```
+#### MacOS
+Установите redis при помощи [homebrew](https://brew.sh/index_ru)
+([инструкция](https://medium.com/@djamaldg/install-use-redis-on-macos-sierra-432ab426640e))
+#### Windows
+Для Windows лучше всего установить [Linux-подсистему для Windows](https://www.comss.ru/page.php?id=4897) и продолжать
+работу в ней. Если вы не можете установить WSL, то можно воспользоваться 
+[старой сборкой Redis](https://github.com/MicrosoftArchive/redis/releases).
 
-Настройки по умолчанию хранятся в файле `./webapp/config.py`. Если требуется внести изменения в секретные ключи - создайте файл .env и добавьте туда следующие настройки:
+### Настройка
+Настройки по умолчанию хранятся в файле `./webapp/config.py`. Если требуется внести изменения в секретные
+ключи - создайте файл .env и добавьте туда следующие настройки:
 ```
 SECRET_KEY=ваш секретный ключ для создания сессий Flask 
 LOG_TYPE=полный или сокращенный формат сообщений ('stream'/'watched')
@@ -77,6 +87,7 @@ LOG_DIR=путь к папке с файлами логов
 APP_LOG_NAME=имя файла 'stream'-логов
 WWW_LOG_NAME=имя файла 'watched'-логов
 ```
+
 ### Запуск
 Чтобы запустить приложение на локальном сервере, выполните в консоли:
 #### MacOS/Linux
@@ -87,15 +98,16 @@ python3 run.py
 ```
 cd steam-inventory-analyst/
 chmod +x run_celery.sh
-. venv/bin/activate
+source venv/bin/activate
 ./run_celery.sh
 ```
 В третьем окне консоли выполните команды:
 ```
 cd steam-inventory-analyst/
 chmod +x run_flower.sh
-. venv/bin/activate
+source venv/bin/activate
 ./run_flower.sh
 ```
-Теперь вы можете работать с сервисом по адресу [localhost:5000](localhost:5000) и отслеживать статистику выполнения
-задач Celery по адресу [localhost:5555](localhost:5555)
+
+Теперь вы можете работать с сервисом по адресу [http://localhost:5000](http://localhost:5000) и отслеживать статистику
+выполнения задач Celery по адресу [http://localhost:5555](http://localhost:5555)
