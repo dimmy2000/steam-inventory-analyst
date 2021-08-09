@@ -46,35 +46,65 @@ git clone https://github.com/dimmy2000/steam-inventory-analyst.git
 cd steam-inventory-analyst/
 ```
 Создайте виртуальное окружение:
-#### MacOS/Linux
-```
-python3 -m venv venv
-```
-#### Windows
-```
-py -3 -m venv venv
-```
+
+<table>
+    <tr>
+        <th>MacOS/Linux</th>
+        <th>Windows</th>
+    </tr>
+    <tr>
+        <td><code>python3 -m venv venv</code></td>
+        <td><code>py -3 -m venv venv</code></td>
+    </tr>
+</table>
+
 Активируйте виртуальное окружение и установите пакеты, необходимые для работы приложения:
-#### MacOS/Linux
-```
-source venv/bin/activate
-pip install -r requirments.txt
-```
-#### Windows
-```
-venv\Scripts\activate.bat
-pip install -r requirments.txt
-```
+
+<table>
+    <tr>
+        <th>MacOS/Linux</th>
+        <th>Windows</th>
+    </tr>
+    <tr>
+        <td>
+            <code>source venv/bin/activate</code><br>
+            <code>pip install -r requirments.txt</code>
+        </td>
+        <td>
+            <code>venv\Scripts\activate.bat</code><br>
+            <code>pip install -r requirments.txt</code>
+        </td>
+    </tr>
+</table>
+
 Также, в качестве брокера задач Celery, необходимо установить Redis
-#### Linux
-Установите пакет redis-server ```apt-get install redis-server```
-#### MacOS
-Установите redis при помощи [homebrew](https://brew.sh/index_ru)
-([инструкция](https://medium.com/@djamaldg/install-use-redis-on-macos-sierra-432ab426640e))
-#### Windows
-Для Windows лучше всего установить [Linux-подсистему для Windows](https://www.comss.ru/page.php?id=4897) и продолжать
-работу в ней. Если вы не можете установить WSL, то можно воспользоваться 
-[старой сборкой Redis](https://github.com/MicrosoftArchive/redis/releases).
+
+<table>
+    <tr>
+        <th>Linux</th>
+        <th>MacOS</th>
+        <th>Windows</th>
+    </tr>
+    <tr>
+        <td width="30%">
+            <span>
+                Установите пакет redis-server<br>
+                <code>apt-get install redis-server</code>
+            </span>
+        </td>
+        <td width="30%"><span>
+            Установите redis при помощи 
+            <a href="https://brew.sh/index_ru" target="_blank">homebrew</a>
+            (<a href="https://medium.com/@djamaldg/install-use-redis-on-macos-sierra-432ab426640e" target="_blank">инструкция</a>)
+        </span></td>
+        <td width="40%"><span>
+            Для Windows лучше всего установить 
+            <a href="https://www.comss.ru/page.php?id=4897" target="_blank">Linux-подсистему для Windows</a>
+            и продолжать работу в ней. Если вы не можете установить WSL, то можно воспользоваться
+            <a href="https://github.com/MicrosoftArchive/redis/releases" target="_blank">старой сборкой Redis</a>
+        </span></td>
+    </tr>
+</table>
 
 ### Настройка
 Настройки по умолчанию хранятся в файле `./webapp/config.py`. Если требуется внести изменения в секретные
@@ -87,6 +117,11 @@ LOG_DIR=путь к папке с файлами логов
 APP_LOG_NAME=имя файла 'stream'-логов
 WWW_LOG_NAME=имя файла 'watched'-логов
 ```
+
+#### Миграция базы данных
+Чтобы создать новую базу данных или применить миграции к существующей,
+выполните в командной строке `export FLASK_APP=webapp.factory:create_app &&
+flask db upgrade`
 
 ### Запуск
 Чтобы запустить приложение на локальном сервере, выполните в консоли:
