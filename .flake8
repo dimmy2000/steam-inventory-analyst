@@ -9,8 +9,15 @@ exclude =
     __pycache__,
     build,
     env,
+    migrations,
     secrets,
-    venv
+    venv,
+
+per-file-ignores =
+    */__init__.py: D104,
+    */flask_logs.py: D101, D102, D107,
+    webapp/user/views.py: F401,
+    webapp/__init__.py: D104, E402, I100, I202,
 
 max-complexity = 8
 
