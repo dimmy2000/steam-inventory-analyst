@@ -1,8 +1,8 @@
 """Реализация разделов сайта для работы с предметами сообщества Steam."""
 import os
 
-from flask import Blueprint, render_template, current_app
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template
+from flask_login import current_user, login_required
 
 from webapp.account.models import Account
 

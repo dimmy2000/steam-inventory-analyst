@@ -5,7 +5,7 @@ from webapp.config import Config
 def init_celery(celery, app):
     """Подключение экземпляра Celery к flask-приложению."""
     celery.config_from_object(Config)
-    TaskBase = celery.Task
+    TaskBase = celery.Task  # noqa: N806
 
     class ContextTask(TaskBase):
         def __call__(self, *args, **kwargs):

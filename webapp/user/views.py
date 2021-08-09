@@ -2,14 +2,13 @@
 import os
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.urls import url_parse
 
 from webapp.account.models import Account
 from webapp.account.schemas import AccountSchema
 from webapp.db import db
-from webapp.item.schemas import ItemSchema, DescriptionSchema
+from webapp.item.schemas import DescriptionSchema, ItemSchema
 from webapp.user.forms import LoginForm, RegistrationForm
 from webapp.user.models import User
 from webapp.user.schemas import UserSchema
@@ -28,7 +27,9 @@ def login():
         ))
     form = LoginForm()
     if form.validate_on_submit():
-        user = db.session.query(User).filter_by(username=form.username.data).first()
+        user = db.session.query(User).filter_by(
+            username=form.username.data,
+        ).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password', 'danger')
             return redirect(url_for('user.login'))
@@ -78,7 +79,7 @@ def register():
 @blueprint.route('/<username>')
 @login_required
 def profile(username):
-    """Профиль зарегистрированного пользователя"""
+    """Профиль зарегистрированного пользователя."""
     user = db.session.query(User).filter_by(username=username).first_or_404()
     accounts = user.accounts.all()
     template_path = os.path.join('user', 'profile.html')

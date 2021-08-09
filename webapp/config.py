@@ -9,6 +9,7 @@ load_dotenv()
 
 class Config(object):
     """Хранение переменных для настройки компонентов приложения."""
+
     # Flask
     SECRET_KEY = os.environ.get("SECRET_KEY") or "dQw4w9WgXcQ"
     # SQL database

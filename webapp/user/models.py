@@ -36,9 +36,15 @@ class User(db.Model, Mixin):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    accounts = relationship("Account", cascade="all,delete", backref='users', lazy="dynamic")
+    accounts = relationship(
+        "Account",
+        cascade="all,delete",
+        backref='users',
+        lazy="dynamic",
+    )
 
     def avatar(self, size):
+        """Получает ссылку на аватар пользователя по указанному email."""
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 

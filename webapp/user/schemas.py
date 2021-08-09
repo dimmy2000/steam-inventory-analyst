@@ -1,5 +1,5 @@
 """Схемы для работы с marshmallow."""
-from marshmallow import post_load, fields
+from marshmallow import fields, post_load
 
 from webapp.db import ma
 from webapp.user.models import User
