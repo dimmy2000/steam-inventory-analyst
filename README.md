@@ -129,21 +129,7 @@ flask db upgrade`
 Чтобы запустить приложение на локальном сервере, выполните в консоли:
 #### MacOS/Linux
 ```
-python3 run.py
-```
-Во втором окне консоли выполните команды:
-```
-cd steam-inventory-analyst/
-chmod +x run_celery.sh
-source venv/bin/activate
-./run_celery.sh
-```
-В третьем окне консоли выполните команды:
-```
-cd steam-inventory-analyst/
-chmod +x run_flower.sh
-source venv/bin/activate
-./run_flower.sh
+./runserver.sh
 ```
 
 Теперь вы можете работать с сервисом по адресу [http://localhost:5000](http://localhost:5000) и отслеживать статистику
